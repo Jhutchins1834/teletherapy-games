@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Teletherapy Games
+
+A growing library of turn-taking games for speech, OT, and PT teletherapy sessions. Built with Next.js, Tailwind CSS, and the Anthropic SDK.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- An Anthropic API key ([get one here](https://console.anthropic.com/))
+
+### Local Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Copy the env file and add your API key
+cp .env.local.example .env.local
+# Edit .env.local and set ANTHROPIC_API_KEY
+
+# Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the game picker.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Deploying to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push the repo to GitHub.
+2. Import the project in [Vercel](https://vercel.com/new).
+3. Add the environment variable `ANTHROPIC_API_KEY` in the Vercel project settings.
+4. Deploy — Vercel auto-detects Next.js.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How to Add a New Game
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Adding a game takes three steps:
 
-## Deploy on Vercel
+### 1. Create a game folder
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+games/
+  my-new-game/
+    config.ts    # metadata + setup menu schema
+    Game.tsx     # the playable React component
+    cache.ts     # (optional) pre-generated word banks
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. Export a config
+
+`config.ts` must default-export an object matching the `GameConfig` type:
+
+```ts
+import type { GameConfig } from '@/lib/setup-menu/types';
+import dynamic from 'next/dynamic';
+
+const Game = dynamic(() => import('./Game'), { ssr: false });
+
+const config: GameConfig = {
+  id: 'my-new-game',
+  title: 'My New Game',
+  description: 'A short description shown on the game picker.',
+  thumbnail: '🎯',
+  setupSchema: {
+    sound:     { type: 'select', label: 'Target Sound', options: ['/f/', '/s/', '/r/'] },
+    position:  { type: 'select', label: 'Position',     options: ['initial', 'medial', 'final'] },
+    level:     { type: 'select', label: 'Level',         options: ['early', 'elementary', 'upper-elementary', 'teen-adult'] },
+    wordCount: { type: 'select', label: 'Word Count',    options: [5, 10, 15, 20] },
+    // Add any extra fields your game needs — the setup menu renders them automatically.
+  },
+  component: Game,
+};
+
+export default config;
+```
+
+Your `Game.tsx` component receives `{ words: string[]; setup: SetupChoices }` as props.
+
+### 3. Register it
+
+Open `games/_registry.ts` and add one line:
+
+```ts
+import myNewGame from './my-new-game/config';
+
+const registry: GameConfig[] = [
+  barnyardRace,
+  myNewGame,   // ← add here
+];
+```
+
+That's it — the homepage and dynamic route will pick it up automatically.
+
+## Project Structure
+
+```
+app/
+  layout.tsx                    # root layout
+  page.tsx                      # game picker hub
+  games/[gameId]/page.tsx       # dynamic game loader
+  api/words/route.ts            # Claude-powered word generation
+games/
+  _registry.ts                  # game index
+  barnyard-race/                # game #1
+    config.ts
+    Game.tsx
+    cache.ts
+lib/
+  claude.ts                     # Anthropic SDK wrapper
+  setup-menu/
+    SetupMenu.tsx               # dynamic setup form
+    types.ts                    # shared types
+  word-bank/
+    index.ts                    # cache-first word lookup
+    prompt.ts                   # Claude prompt builder
+```
+
+## Word Bank
+
+Words are loaded cache-first: the app checks the game's `cache.ts` before calling the API. This means the app works offline for any sound/position/level combo that has been pre-seeded. When the cache misses, the app calls `/api/words` which uses Claude to generate age-appropriate words.
+
+Clinicians can check "Generate new words (skip cache)" in the setup menu to force fresh generation via the API.
