@@ -6,15 +6,10 @@ import registry from '@/games/_registry';
 import SetupMenu from '@/lib/setup-menu/SetupMenu';
 import type { SetupChoices } from '@/lib/setup-menu/types';
 
-// Dynamic import of each game's cache
-const cacheModules: Record<string, () => Promise<{ default: Record<string, string[]> }>> = {
-  'barnyard-race': () => import('@/games/barnyard-race/cache'),
-};
-
-async function loadCache(gameId: string): Promise<Record<string, string[]>> {
-  const loader = cacheModules[gameId];
-  if (!loader) return {};
-  const mod = await loader();
+// All games share the same word bank cache.
+// If a game ever needs game-specific entries, add a per-game loader here.
+async function loadCache(): Promise<Record<string, string[]>> {
+  const mod = await import('@/lib/word-bank/cache');
   return mod.default;
 }
 
@@ -37,7 +32,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
     setError(null);
 
     try {
-      const cache = await loadCache(gameId);
+      const cache = await loadCache();
 
       // Import getWords dynamically to keep it client-side
       const { getWords } = await import('@/lib/word-bank/index');

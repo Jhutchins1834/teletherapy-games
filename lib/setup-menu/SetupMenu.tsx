@@ -35,6 +35,9 @@ export default function SetupMenu({ schema, onSubmit, loading }: Props) {
             >
               {field.label}
             </label>
+            {field.helperText && (
+              <p className="mb-1 text-xs text-amber-600">{field.helperText}</p>
+            )}
             <select
               id={key}
               value={String(choices[key])}

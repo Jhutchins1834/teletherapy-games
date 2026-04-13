@@ -4,6 +4,7 @@ export type FieldSchema = {
   type: 'select';
   options: (string | number)[];
   label: string;
+  helperText?: string;
 };
 
 export type SetupSchema = Record<string, FieldSchema>;
