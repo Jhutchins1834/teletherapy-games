@@ -11,7 +11,7 @@ type Props = {
 type Bubble = {
   id: number;
   word: string;
-  x: number; // percentage (10-90)
+  x: number; // percentage (15-85)
   createdAt: number; // timestamp
   popped: boolean;
 };
@@ -52,7 +52,7 @@ export default function BubblePop({ words, setup }: Props) {
   const wordQueueRef = useRef<string[]>([]);
   const nextIdRef = useRef(0);
   const gameAreaRef = useRef<HTMLDivElement>(null);
-  const animFrameRef = useRef<number>(0);
+  const timerRef = useRef<ReturnType<typeof setInterval>>(0 as unknown as ReturnType<typeof setInterval>);
   const lastSpawnRef = useRef(0);
 
   const difficulty = String(setup.difficulty || 'Easy');
@@ -72,7 +72,6 @@ export default function BubblePop({ words, setup }: Props) {
     if (wordQueueRef.current.length === 0) return null;
     const word = wordQueueRef.current.shift()!;
     const id = nextIdRef.current++;
-    // Random x between 15% and 85%, avoid edges
     const x = 15 + Math.random() * 70;
     const bubble: Bubble = { id, word, x, createdAt: Date.now(), popped: false };
     return bubble;
@@ -95,24 +94,27 @@ export default function BubblePop({ words, setup }: Props) {
     startGame();
   }, [startGame]);
 
-  // Game loop
+  // Game loop — only handles miss detection, spawning, and end-condition.
+  // Bubble rising is handled entirely by CSS animation.
   useEffect(() => {
     if (phase !== 'playing') return;
 
-    let running = true;
+    // Initial spawn
+    const firstBubble = spawnBubble();
+    if (firstBubble) {
+      setBubbles([firstBubble]);
+      lastSpawnRef.current = Date.now();
+    }
 
-    const tick = () => {
-      if (!running) return;
-
+    // Poll at ~200ms intervals — no need for 60fps since CSS handles animation
+    timerRef.current = setInterval(() => {
       const now = Date.now();
 
       setBubbles((prev) => {
-        let updated = prev;
-
-        // Check for missed bubbles (risen past the top)
+        // Remove missed bubbles (animation finished = elapsed >= riseDuration)
         const stillAlive: Bubble[] = [];
         let newMisses = 0;
-        for (const b of updated) {
+        for (const b of prev) {
           const elapsed = (now - b.createdAt) / 1000;
           if (!b.popped && elapsed >= riseDuration) {
             newMisses++;
@@ -123,12 +125,12 @@ export default function BubblePop({ words, setup }: Props) {
         if (newMisses > 0) {
           setMissed((m) => m + newMisses);
         }
-        updated = stillAlive;
+
+        let updated = stillAlive;
 
         // Spawn new bubbles if needed
         const activeCount = updated.filter((b) => !b.popped).length;
         const wordsLeft = wordQueueRef.current.length;
-        // Throttle spawning — at least 600ms between spawns for staggering
         const canSpawn =
           activeCount < maxOnScreen &&
           wordsLeft > 0 &&
@@ -144,34 +146,28 @@ export default function BubblePop({ words, setup }: Props) {
 
         // Check end condition
         const activeAfter = updated.filter((b) => !b.popped).length;
-        if (wordsLeft === 0 && activeAfter === 0) {
-          // Use setTimeout to avoid setState during render
+        const wordsLeftAfter = wordQueueRef.current.length;
+        if (wordsLeftAfter === 0 && activeAfter === 0) {
           setTimeout(() => setPhase('done'), 100);
         }
 
         return updated;
       });
-
-      // Clean up old particles
-      setParticles((prev) => prev.filter((p) => now - p.id < 500));
-
-      animFrameRef.current = requestAnimationFrame(tick);
-    };
-
-    // Initial spawn
-    const firstBubble = spawnBubble();
-    if (firstBubble) {
-      setBubbles([firstBubble]);
-      lastSpawnRef.current = Date.now();
-    }
-
-    animFrameRef.current = requestAnimationFrame(tick);
+    }, 200);
 
     return () => {
-      running = false;
-      cancelAnimationFrame(animFrameRef.current);
+      clearInterval(timerRef.current);
     };
   }, [phase, riseDuration, maxOnScreen, spawnBubble]);
+
+  // Particle cleanup on a separate interval
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    const id = setInterval(() => {
+      setParticles((prev) => prev.filter((p) => Date.now() - p.id < 500));
+    }, 200);
+    return () => clearInterval(id);
+  }, [phase]);
 
   // Spacebar handler
   useEffect(() => {
@@ -191,7 +187,6 @@ export default function BubblePop({ words, setup }: Props) {
         const active = prev.filter((b) => !b.popped);
         if (active.length === 0) return prev;
 
-        // Oldest = earliest createdAt = highest on screen
         const oldest = active.reduce((a, b) =>
           a.createdAt < b.createdAt ? a : b,
         );
@@ -199,9 +194,9 @@ export default function BubblePop({ words, setup }: Props) {
         // Calculate its current Y position for particles
         const elapsed = (Date.now() - oldest.createdAt) / 1000;
         const progress = Math.min(elapsed / riseDuration, 1);
-        const yPercent = 85 - progress * 85; // 85% -> 0%
+        // Maps to the same range as the CSS animation: 90% → -15%
+        const yPercent = 90 - progress * 105;
 
-        // Spawn particles
         const now = Date.now();
         const newParticles: Particle[] = Array.from({ length: 8 }, (_, i) => ({
           id: now + i,
@@ -227,9 +222,7 @@ export default function BubblePop({ words, setup }: Props) {
     return (
       <div className="relative flex items-center justify-center overflow-hidden rounded-2xl"
         style={{ aspectRatio: '16/9', maxHeight: '75vh', width: '100%' }}>
-        {/* Ocean background */}
         <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-cyan-400 to-blue-700" />
-        {/* Light rays */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           {[1, 2, 3].map((i) => (
             <div
@@ -342,7 +335,7 @@ export default function BubblePop({ words, setup }: Props) {
         ))}
       </div>
 
-      {/* Decorative fish */}
+      {/* Decorative fish — scaleX(-1) when swimming RIGHT so the left-facing emoji faces right */}
       {FISH.map((fish, i) => (
         <div
           key={i}
@@ -351,32 +344,26 @@ export default function BubblePop({ words, setup }: Props) {
             top: `${fish.y}%`,
             fontSize: '1.5rem',
             animation: `swim-${fish.direction} ${fish.duration}s linear ${fish.delay}s infinite`,
-            transform: fish.direction === 'left' ? 'scaleX(-1)' : undefined,
+            transform: fish.direction === 'right' ? 'scaleX(-1)' : undefined,
           }}
         >
           {fish.emoji}
         </div>
       ))}
 
-      {/* Bubbles */}
+      {/* Bubbles — position driven entirely by CSS animation */}
       {bubbles.map((bubble) => {
         if (bubble.popped) return null;
-        const elapsed = (Date.now() - bubble.createdAt) / 1000;
-        const progress = Math.min(elapsed / riseDuration, 1);
-        // Rise from bottom (85%) to top (0%)
-        const yPercent = 85 - progress * 85;
-        // Gentle sine-wave sway
-        const sway = Math.sin((elapsed * Math.PI) / 2) * 3;
 
         return (
           <div
             key={bubble.id}
             className="absolute flex items-center justify-center"
             style={{
-              left: `${bubble.x + sway}%`,
-              top: `${yPercent}%`,
+              left: `${bubble.x}%`,
+              top: '90%',
               transform: 'translate(-50%, -50%)',
-              transition: 'top 0.1s linear, left 0.1s linear',
+              animation: `bubble-rise ${riseDuration}s linear forwards, bubble-sway 3s ease-in-out infinite`,
             }}
           >
             {/* Bubble circle */}
@@ -433,8 +420,16 @@ export default function BubblePop({ words, setup }: Props) {
         );
       })}
 
-      {/* CSS animations for fish */}
+      {/* CSS animations */}
       <style jsx>{`
+        @keyframes bubble-rise {
+          from { top: 90%; }
+          to { top: -15%; }
+        }
+        @keyframes bubble-sway {
+          0%, 100% { margin-left: 0; }
+          50% { margin-left: 30px; }
+        }
         @keyframes swim-right {
           0% { left: -5%; }
           100% { left: 105%; }
