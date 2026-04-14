@@ -17,5 +17,7 @@ export type GameConfig = {
   description: string;
   thumbnail: string;
   setupSchema: SetupSchema;
+  /** Multiply the wordCount by this factor when fetching words. Default: 1. */
+  wordMultiplier?: number;
   component: React.ComponentType<{ words: string[]; setup: SetupChoices }>;
 };

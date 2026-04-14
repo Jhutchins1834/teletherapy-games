@@ -32,8 +32,6 @@ export default function BugCatcher({ words, setup }: Props) {
   const [bugs, setBugs] = useState<BugData[]>([]);
   const [childCaught, setChildCaught] = useState(0);
   const [therapistCaught, setTherapistCaught] = useState(0);
-  const [childTotal, setChildTotal] = useState(0);
-  const [therapistTotal, setTherapistTotal] = useState(0);
   const wordQueueRef = useRef<{ word: string; owner: 'child' | 'therapist'; icon: LucideIcon | null }[]>([]);
   const nextIdRef = useRef(0);
   const lastSpawnRef = useRef(0);
@@ -45,9 +43,8 @@ export default function BugCatcher({ words, setup }: Props) {
   const flyDuration = difficulty === 'Hard' ? baseDuration / 1.25 : baseDuration;
   const maxOnScreen = MAX_BUGS[difficulty] || 1;
 
-  // Compute totals per player
-  const expectedChildTotal = useMemo(() => Math.ceil(words.length / 2), [words.length]);
-  const expectedTherapistTotal = useMemo(() => Math.floor(words.length / 2), [words.length]);
+  // Target per player = the wordCount setting (words array is 2× that size)
+  const targetPerPlayer = Number(setup.wordCount);
 
   const initQueue = useCallback(() => {
     const shuffled = [...words].sort(() => Math.random() - 0.5);
@@ -80,8 +77,6 @@ export default function BugCatcher({ words, setup }: Props) {
     setBugs([]);
     setChildCaught(0);
     setTherapistCaught(0);
-    setChildTotal(0);
-    setTherapistTotal(0);
     nextIdRef.current = 0;
     lastSpawnRef.current = 0;
     setPhase('playing');
@@ -126,29 +121,18 @@ export default function BugCatcher({ words, setup }: Props) {
 
       setBugs((prev) => {
         const stillAlive: BugData[] = [];
-        let newChildMisses = 0;
-        let newTherapistMisses = 0;
 
         for (const b of prev) {
           // Remove caught bugs after their animation (600ms)
           if (b.caught && b.catchTime && now - b.catchTime > 600) {
             continue;
           }
-          // Check for escaped bugs
+          // Check for escaped bugs (miss counts derived at end: targetPerPlayer - caught)
           const elapsed = (now - b.createdAt) / 1000;
           if (!b.caught && elapsed >= flyDuration) {
-            if (b.owner === 'child') newChildMisses++;
-            else newTherapistMisses++;
             continue;
           }
           stillAlive.push(b);
-        }
-
-        if (newChildMisses > 0) {
-          setChildTotal((t) => t + newChildMisses);
-        }
-        if (newTherapistMisses > 0) {
-          setTherapistTotal((t) => t + newTherapistMisses);
         }
 
         let updated = stillAlive;
@@ -183,10 +167,6 @@ export default function BugCatcher({ words, setup }: Props) {
     return () => clearInterval(timerRef.current);
   }, [phase, flyDuration, maxOnScreen, spawnBug]);
 
-  // Track totals for caught bugs
-  useEffect(() => {
-    setChildTotal((t) => t); // no-op, totals tracked via miss counting
-  }, [childCaught]);
 
   // ─── INTRO ────────────────────────────────────────────────────
   if (phase === 'intro') {
@@ -217,8 +197,8 @@ export default function BugCatcher({ words, setup }: Props) {
 
   // ─── END SCREEN ───────────────────────────────────────────────
   if (phase === 'done') {
-    const finalChildMissed = expectedChildTotal - childCaught;
-    const finalTherapistMissed = expectedTherapistTotal - therapistCaught;
+    const finalChildMissed = targetPerPlayer - childCaught;
+    const finalTherapistMissed = targetPerPlayer - therapistCaught;
     let headline: string;
     let subtext: string;
     if (childCaught > therapistCaught) {
@@ -245,12 +225,12 @@ export default function BugCatcher({ words, setup }: Props) {
           <div className="flex gap-8 mt-2">
             <div className="text-center">
               <p className="text-sm font-semibold text-pink-600">Child</p>
-              <p className="text-3xl font-bold text-pink-700">{childCaught} / {expectedChildTotal}</p>
+              <p className="text-3xl font-bold text-pink-700">{childCaught} / {targetPerPlayer}</p>
               <p className="text-xs text-pink-400">{finalChildMissed} missed</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-blue-600">Therapist</p>
-              <p className="text-3xl font-bold text-blue-700">{therapistCaught} / {expectedTherapistTotal}</p>
+              <p className="text-3xl font-bold text-blue-700">{therapistCaught} / {targetPerPlayer}</p>
               <p className="text-xs text-blue-400">{finalTherapistMissed} missed</p>
             </div>
           </div>
@@ -284,18 +264,18 @@ export default function BugCatcher({ words, setup }: Props) {
       {/* Child's jar — LEFT */}
       <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-10 sm:left-4">
         <p className="text-xs font-bold text-pink-700 sm:text-sm">Child</p>
-        <Jar color="pink" caught={childCaught} total={expectedChildTotal} />
+        <Jar color="pink" caught={childCaught} total={targetPerPlayer} />
         <p className="text-xs font-semibold text-pink-600">
-          {childCaught} / {expectedChildTotal}
+          {childCaught} / {targetPerPlayer}
         </p>
       </div>
 
       {/* Therapist's jar — RIGHT */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-10 sm:right-4">
         <p className="text-xs font-bold text-blue-700 sm:text-sm">Therapist</p>
-        <Jar color="blue" caught={therapistCaught} total={expectedTherapistTotal} />
+        <Jar color="blue" caught={therapistCaught} total={targetPerPlayer} />
         <p className="text-xs font-semibold text-blue-600">
-          {therapistCaught} / {expectedTherapistTotal}
+          {therapistCaught} / {targetPerPlayer}
         </p>
       </div>
 

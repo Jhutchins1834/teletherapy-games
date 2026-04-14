@@ -36,7 +36,11 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
       // Import getWords dynamically to keep it client-side
       const { getWords } = await import('@/lib/word-bank/index');
-      const result = await getWords(choices, cache, forceRefresh);
+      // Some games need more words than the wordCount setting (e.g. Bug Catcher needs 2x for two players)
+      const fetchChoices = game.wordMultiplier && game.wordMultiplier > 1
+        ? { ...choices, wordCount: Number(choices.wordCount) * game.wordMultiplier }
+        : choices;
+      const result = await getWords(fetchChoices, cache, forceRefresh);
 
       setWords(result);
       setSetup(choices);

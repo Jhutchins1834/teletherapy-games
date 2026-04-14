@@ -9,6 +9,7 @@ const config: GameConfig = {
   description:
     'Catch the bugs before they escape! Click each bug when the word is said correctly to add it to your jar.',
   thumbnail: '🐛',
+  wordMultiplier: 2,
   setupSchema: {
     sound: {
       type: 'select',
@@ -38,8 +39,8 @@ const config: GameConfig = {
     },
     wordCount: {
       type: 'select',
-      label: 'Word Count',
-      helperText: 'Total bugs in the session. Game ends when all bugs are caught or escape.',
+      label: 'Bugs per Player',
+      helperText: 'Each player gets this many bugs. Total bugs = 2× this number.',
       options: [5, 10, 15, 20],
     },
     difficulty: {
