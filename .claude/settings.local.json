@@ -6,7 +6,9 @@
       "Bash(export PATH=\"/usr/local/bin:/opt/homebrew/bin:$HOME/.nvm/versions/node/*/bin:$PATH\")",
       "Bash(export PATH=\"/usr/local/bin:/opt/homebrew/bin:$PATH\")",
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(node -e \"const l = require\\(''lucide-react''\\); const names = [''Fan'',''Fish'',''Footprints'',''Utensils'',''Hash'',''Tractor'',''Flame'',''Smile'',''Sun'',''CookingPot'',''Rabbit'',''Waves'',''Radio'',''Rocket'',''Rainbow'',''Bell'',''CircleDot'',''Drum'',''School'',''Roof'',''Home'',''Fence'',''Snowflake'',''Mountain'',''Milk'',''Phone'',''Eye'',''Ear'',''Hand'',''Dog'',''Cat'',''Bird'',''Apple'',''Banana'',''Star'',''Heart'',''Music'',''Book'',''Pencil'',''Scissors'',''Gift'',''Key'',''Lock'',''Clock'',''Shirt'',''Bug'',''Droplet'',''Leaf'',''Cloud'',''Wind'',''Zap'',''Moon'',''Candy'',''Cookie'',''Cake'',''Pizza'',''IceCream'',''Egg'',''Cherry'',''Grape'',''Lollipop'',''Popcorn'',''Sandwich'',''Salad'',''Coffee'',''Wine'',''Beer'',''Martini'',''Soup'',''Beef'',''Bone'',''Milk'',''Wheat'',''Carrot'',''Nut'',''TreePine'',''Trees'',''TreeDeciduous'',''Flower'',''Sprout'',''Clover'',''Feather'',''Gem'',''Crown'',''Palette'',''Brush'',''Pen'',''Type'',''Ruler'',''Compass'',''Map'',''Navigation'',''Anchor'',''Ship'',''Sailboat'',''Plane'',''Car'',''Truck'',''Bus'',''Train'',''Bike'',''Ambulance'',''Siren'',''Wrench'',''Hammer'',''Axe'',''Shovel'',''Pickaxe'',''Shield'',''Sword'',''Target'',''Award'',''Trophy'',''Medal'',''Flag'',''Ribbon'',''Box'',''Package'',''Truck'',''Mailbox'',''Globe'',''Earth'',''SunMoon'',''Sunrise'',''Sunset'',''CloudRain'',''CloudSnow'',''Umbrella'',''Thermometer'',''Sparkles'',''PartyPopper'',''Smile'',''Laugh'',''Frown'',''Meh'',''Angry'',''Baby'',''PersonStanding'',''Footprints'',''Brain'',''Bone'',''Skull'',''Stethoscope'',''Pill'',''Syringe'',''Microscope'',''Dna'',''TestTube'',''Beaker'',''Flask'',''Atom''].filter\\(n => l[n]\\); console.log\\(JSON.stringify\\(names\\)\\);\")",
+      "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(''Roof:'', !!l.Roof, ''Flask:'', !!l.Flask\\)\")"
     ]
   }
 }
