@@ -3,12 +3,14 @@ import barnyardRace from './barnyard-race/config';
 import bubblePop from './bubble-pop/config';
 import mountainClimber from './mountain-climber/config';
 import bugCatcher from './bug-catcher/config';
+import metamorphosis from './metamorphosis/config';
 
 const registry: GameConfig[] = [
   barnyardRace,
   bubblePop,
   mountainClimber,
   bugCatcher,
+  metamorphosis,
   // Add new games here — one line per game.
 ];
 
