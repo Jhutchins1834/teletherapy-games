@@ -367,8 +367,32 @@ export default function MetamorphosisGame({ words, setup }: Props) {
       {/* Board background */}
       <div className="absolute inset-0 bg-gradient-to-b from-amber-100 via-amber-50 to-amber-100" />
 
-      {/* Board */}
-      <div className="absolute inset-[3%]">
+      {/* Player info panels — header row above the board */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-[3%] py-1">
+        <div className="flex items-center gap-2 rounded-lg bg-white/80 px-2.5 py-1 shadow text-xs">
+          <PlayerPiece0 size={20} />
+          <span className="font-semibold text-amber-800">Child</span>
+          <div className="flex gap-0.5">
+            {[0, 1].map((i) => (
+              <div key={i} className={`h-2 w-2 rounded-full ${i < players[0].upgrades ? 'bg-amber-400' : 'bg-gray-200'}`} />
+            ))}
+          </div>
+          <span className="text-amber-600 ml-1">{correctCount[0]} correct</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg bg-white/80 px-2.5 py-1 shadow text-xs">
+          <span className="text-amber-600 mr-1">{correctCount[1]} correct</span>
+          <div className="flex gap-0.5">
+            {[0, 1].map((i) => (
+              <div key={i} className={`h-2 w-2 rounded-full ${i < players[1].upgrades ? 'bg-amber-400' : 'bg-gray-200'}`} />
+            ))}
+          </div>
+          <span className="font-semibold text-amber-800">Therapist</span>
+          <PlayerPiece1 size={20} />
+        </div>
+      </div>
+
+      {/* Board — pushed down to make room for the header */}
+      <div className="absolute left-[3%] right-[3%] bottom-[3%]" style={{ top: '28px' }}>
         <Board players={players} currentPlayer={currentPlayer} />
       </div>
 
@@ -416,9 +440,6 @@ export default function MetamorphosisGame({ words, setup }: Props) {
                 <p className="text-5xl font-bold text-amber-900 sm:text-6xl">
                   {currentWord}
                 </p>
-                <p className="mt-1 text-xs text-amber-400">
-                  Word {wordIndex + 1} of {words.length}
-                </p>
               </div>
 
               {/* Action buttons */}
@@ -457,33 +478,6 @@ export default function MetamorphosisGame({ words, setup }: Props) {
           onComplete={handleMetamorphComplete}
         />
       )}
-
-      {/* Player info panels */}
-      <div className="absolute top-2 left-2 flex flex-col gap-1 rounded-lg bg-white/80 p-2 shadow text-xs">
-        <div className="flex items-center gap-1.5">
-          <PlayerPiece0 size={20} />
-          <span className="font-semibold text-amber-800">Child</span>
-          <div className="flex gap-0.5">
-            {[0, 1].map((i) => (
-              <div key={i} className={`h-2 w-2 rounded-full ${i < players[0].upgrades ? 'bg-amber-400' : 'bg-gray-200'}`} />
-            ))}
-          </div>
-        </div>
-        <span className="text-amber-600">{correctCount[0]} correct</span>
-      </div>
-
-      <div className="absolute top-2 right-2 flex flex-col gap-1 rounded-lg bg-white/80 p-2 shadow text-xs">
-        <div className="flex items-center gap-1.5">
-          <PlayerPiece1 size={20} />
-          <span className="font-semibold text-amber-800">Therapist</span>
-          <div className="flex gap-0.5">
-            {[0, 1].map((i) => (
-              <div key={i} className={`h-2 w-2 rounded-full ${i < players[1].upgrades ? 'bg-amber-400' : 'bg-gray-200'}`} />
-            ))}
-          </div>
-        </div>
-        <span className="text-amber-600">{correctCount[1]} correct</span>
-      </div>
     </div>
   );
 }
