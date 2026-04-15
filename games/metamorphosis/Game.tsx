@@ -50,6 +50,14 @@ export default function MetamorphosisGame({ words, setup }: Props) {
   const currentWord = wordIndex < words.length ? words[wordIndex] : null;
   const wordsExhausted = wordIndex >= words.length;
 
+  // Auto-resolve when words are exhausted during playing phase
+  useEffect(() => {
+    if (phase === 'playing' && wordsExhausted) {
+      const timer = setTimeout(() => resolveFallbackFromState(), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, wordsExhausted]);
+
   // Dev-mode key handler: press 1/2/3 to override next spin
   useEffect(() => {
     if (process.env.NODE_ENV !== 'development') return;
@@ -431,10 +439,10 @@ export default function MetamorphosisGame({ words, setup }: Props) {
             </>
           )}
 
-          {/* Words exhausted mid-play */}
+          {/* Words exhausted mid-play — should not linger, auto-resolves */}
           {phase === 'playing' && !currentWord && (
             <div className="rounded-xl bg-white/90 p-4 shadow-lg text-center">
-              <p className="text-amber-800 font-semibold">Words exhausted!</p>
+              <p className="text-amber-800 font-semibold">Great practice!</p>
               <p className="text-sm text-amber-600">Determining winner…</p>
             </div>
           )}

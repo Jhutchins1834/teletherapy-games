@@ -19,5 +19,7 @@ export type GameConfig = {
   setupSchema: SetupSchema;
   /** Multiply the wordCount by this factor when fetching words. Default: 1. */
   wordMultiplier?: number;
+  /** Override wordCount entirely — use this fixed number instead of the setup field. */
+  fixedWordCount?: number;
   component: React.ComponentType<{ words: string[]; setup: SetupChoices }>;
 };

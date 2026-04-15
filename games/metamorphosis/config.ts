@@ -36,13 +36,8 @@ const config: GameConfig = {
       helperText: 'Controls vocabulary difficulty — keeps words age-appropriate.',
       options: ['early', 'elementary', 'upper-elementary', 'teen-adult'] as LevelKey[],
     },
-    wordCount: {
-      type: 'select',
-      label: 'Word Count',
-      helperText: 'Total practice words. Longer games (30–50) are best for Metamorphosis.',
-      options: [5, 10, 15, 20, 30, 50],
-    },
   },
+  fixedWordCount: 35,
   component: Game,
 };
 

@@ -36,10 +36,14 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
       // Import getWords dynamically to keep it client-side
       const { getWords } = await import('@/lib/word-bank/index');
-      // Some games need more words than the wordCount setting (e.g. Bug Catcher needs 2x for two players)
-      const fetchChoices = game.wordMultiplier && game.wordMultiplier > 1
-        ? { ...choices, wordCount: Number(choices.wordCount) * game.wordMultiplier }
-        : choices;
+      // Some games override wordCount entirely (e.g. Metamorphosis hardcodes 35)
+      // Others multiply it (e.g. Bug Catcher needs 2x for two players)
+      let fetchChoices = { ...choices };
+      if (game.fixedWordCount) {
+        fetchChoices.wordCount = game.fixedWordCount;
+      } else if (game.wordMultiplier && game.wordMultiplier > 1) {
+        fetchChoices.wordCount = Number(choices.wordCount) * game.wordMultiplier;
+      }
       const result = await getWords(fetchChoices, cache, forceRefresh);
 
       setWords(result);
