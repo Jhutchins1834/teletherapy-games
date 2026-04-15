@@ -6,6 +6,7 @@ import PiecePicker from './PiecePicker';
 import Board, { type PlayerState } from './Board';
 import SpinAnimation from './SpinAnimation';
 import MetamorphosisReveal from './MetamorphosisReveal';
+import PieceShowcase from './PieceShowcase';
 import { getPieceSVG, ANIMALS, type AnimalId, type FormLevel } from './pieces';
 import boardData, { START_INDEX } from './board-layout';
 
@@ -43,6 +44,7 @@ export default function MetamorphosisGame({ words, setup }: Props) {
   const [winInfo, setWinInfo] = useState<WinInfo | null>(null);
   const [spinResult, setSpinResult] = useState(0);
   const [metamorphTarget, setMetamorphTarget] = useState<{ player: 0 | 1; newForm: FormLevel } | null>(null);
+  const [showcasePlayer, setShowcasePlayer] = useState<0 | 1 | null>(null);
 
   // Dev mode spin override
   const devOverrideRef = useRef<number | undefined>(undefined);
@@ -393,7 +395,11 @@ export default function MetamorphosisGame({ words, setup }: Props) {
 
       {/* Board — pushed down to make room for the header */}
       <div className="absolute left-[3%] right-[3%] bottom-[3%]" style={{ top: '28px' }}>
-        <Board players={players} currentPlayer={currentPlayer} />
+        <Board
+          players={players}
+          currentPlayer={currentPlayer}
+          onPieceClick={phase === 'playing' ? (idx) => setShowcasePlayer(idx) : undefined}
+        />
       </div>
 
       {/* Center area: word card, spin, controls */}
@@ -478,6 +484,24 @@ export default function MetamorphosisGame({ words, setup }: Props) {
           onComplete={handleMetamorphComplete}
         />
       )}
+
+      {/* Piece showcase modal */}
+      {showcasePlayer !== null && (
+        <PieceShowcase
+          animalId={players[showcasePlayer].animal}
+          form={players[showcasePlayer].upgrades}
+          ownerLabel={showcasePlayer === 0 ? "Child's piece" : "Therapist's piece"}
+          onClose={() => setShowcasePlayer(null)}
+        />
+      )}
+
+      {/* Hover hint for clickable pieces */}
+      <style jsx global>{`
+        .piece-clickable:hover {
+          transform: scale(1.15) !important;
+          filter: drop-shadow(0 0 6px rgba(251,191,36,0.7)) !important;
+        }
+      `}</style>
     </div>
   );
 }

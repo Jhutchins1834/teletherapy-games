@@ -13,9 +13,10 @@ export type PlayerState = {
 type Props = {
   players: [PlayerState, PlayerState];
   currentPlayer: 0 | 1;
+  onPieceClick?: (playerIndex: 0 | 1) => void;
 };
 
-export default function Board({ players, currentPlayer }: Props) {
+export default function Board({ players, currentPlayer, onPieceClick }: Props) {
   return (
     <div className="relative w-full h-full">
       {/* Biome backgrounds */}
@@ -23,7 +24,7 @@ export default function Board({ players, currentPlayer }: Props) {
 
       {/* Spaces */}
       {board.map((space) => (
-        <BoardSpaceEl key={space.index} space={space} players={players} currentPlayer={currentPlayer} />
+        <BoardSpaceEl key={space.index} space={space} players={players} currentPlayer={currentPlayer} onPieceClick={onPieceClick} />
       ))}
     </div>
   );
@@ -33,10 +34,12 @@ function BoardSpaceEl({
   space,
   players,
   currentPlayer,
+  onPieceClick,
 }: {
   space: BoardSpace;
   players: [PlayerState, PlayerState];
   currentPlayer: 0 | 1;
+  onPieceClick?: (playerIndex: 0 | 1) => void;
 }) {
   const colors = SPACE_COLORS[space.color];
   const playersHere = players.filter((p) => p.position === space.index);
@@ -66,17 +69,19 @@ function BoardSpaceEl({
       {playersHere.length > 0 && (
         <div className="flex items-center gap-0">
           {playersHere.map((p, i) => {
-            const playerIdx = players.indexOf(p);
+            const playerIdx = players.indexOf(p) as 0 | 1;
             const Piece = getPieceSVG(p.animal, p.upgrades);
             const isActive = playerIdx === currentPlayer;
+            const clickable = !!onPieceClick;
             return (
               <div
                 key={playerIdx}
-                className={`transition-transform duration-300 ${isActive ? 'scale-110 z-10' : 'scale-90 opacity-80'}`}
+                className={`transition-all duration-300 ${isActive ? 'scale-110 z-10' : 'scale-90 opacity-80'} ${clickable ? 'cursor-pointer piece-clickable' : ''}`}
                 style={{
                   marginLeft: i > 0 ? '-6px' : '0',
                   filter: isActive ? 'drop-shadow(0 0 3px rgba(251,191,36,0.8))' : 'none',
                 }}
+                onClick={clickable ? (e) => { e.stopPropagation(); onPieceClick(playerIdx); } : undefined}
               >
                 <Piece size={28} />
               </div>
