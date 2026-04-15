@@ -14,9 +14,11 @@ type Props = {
   players: [PlayerState, PlayerState];
   currentPlayer: 0 | 1;
   onPieceClick?: (playerIndex: 0 | 1) => void;
+  hoppingPlayer?: 0 | 1 | null;
+  hopTick?: number;
 };
 
-export default function Board({ players, currentPlayer, onPieceClick }: Props) {
+export default function Board({ players, currentPlayer, onPieceClick, hoppingPlayer, hopTick }: Props) {
   return (
     <div className="relative w-full h-full">
       {/* Biome backgrounds */}
@@ -24,8 +26,26 @@ export default function Board({ players, currentPlayer, onPieceClick }: Props) {
 
       {/* Spaces */}
       {board.map((space) => (
-        <BoardSpaceEl key={space.index} space={space} players={players} currentPlayer={currentPlayer} onPieceClick={onPieceClick} />
+        <BoardSpaceEl
+          key={space.index}
+          space={space}
+          players={players}
+          currentPlayer={currentPlayer}
+          onPieceClick={onPieceClick}
+          hoppingPlayer={hoppingPlayer ?? null}
+          hopTick={hopTick ?? 0}
+        />
       ))}
+
+      {/* Hop animation keyframe */}
+      <style jsx global>{`
+        @keyframes piece-hop-land {
+          0% { transform: scale(1.3) translateY(-12px); opacity: 0.85; }
+          55% { transform: scale(1.02) translateY(1px); opacity: 1; }
+          75% { transform: scale(1.04) translateY(-2px); }
+          100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -35,11 +55,15 @@ function BoardSpaceEl({
   players,
   currentPlayer,
   onPieceClick,
+  hoppingPlayer,
+  hopTick,
 }: {
   space: BoardSpace;
   players: [PlayerState, PlayerState];
   currentPlayer: 0 | 1;
   onPieceClick?: (playerIndex: 0 | 1) => void;
+  hoppingPlayer: 0 | 1 | null;
+  hopTick: number;
 }) {
   const colors = SPACE_COLORS[space.color];
   const playersHere = players.filter((p) => p.position === space.index);
@@ -72,14 +96,17 @@ function BoardSpaceEl({
             const playerIdx = players.indexOf(p) as 0 | 1;
             const Piece = getPieceSVG(p.animal, p.upgrades);
             const isActive = playerIdx === currentPlayer;
+            const isHopping = hoppingPlayer === playerIdx;
             const clickable = !!onPieceClick;
             return (
               <div
-                key={playerIdx}
-                className={`transition-all duration-300 ${isActive ? 'scale-110 z-10' : 'scale-90 opacity-80'} ${clickable ? 'cursor-pointer piece-clickable' : ''}`}
+                key={isHopping ? `hop-${playerIdx}-${hopTick}` : `piece-${playerIdx}`}
+                className={`${isHopping ? '' : 'transition-all duration-300'} ${isActive ? 'z-10' : 'opacity-80'} ${clickable ? 'cursor-pointer piece-clickable' : ''}`}
                 style={{
                   marginLeft: i > 0 ? '-6px' : '0',
+                  transform: isHopping ? undefined : (isActive ? 'scale(1.1)' : 'scale(0.9)'),
                   filter: isActive ? 'drop-shadow(0 0 3px rgba(251,191,36,0.8))' : 'none',
+                  animation: isHopping ? 'piece-hop-land 250ms ease-out forwards' : 'none',
                 }}
                 onClick={clickable ? (e) => { e.stopPropagation(); onPieceClick(playerIdx); } : undefined}
               >

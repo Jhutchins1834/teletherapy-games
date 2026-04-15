@@ -45,12 +45,21 @@ export default function MetamorphosisGame({ words, setup }: Props) {
   const [spinResult, setSpinResult] = useState(0);
   const [metamorphTarget, setMetamorphTarget] = useState<{ player: 0 | 1; newForm: FormLevel } | null>(null);
   const [showcasePlayer, setShowcasePlayer] = useState<0 | 1 | null>(null);
+  const [hopTick, setHopTick] = useState(0);
+
+  // Track active hop timeouts for cleanup
+  const hopTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Dev mode spin override
   const devOverrideRef = useRef<number | undefined>(undefined);
 
   const currentWord = wordIndex < words.length ? words[wordIndex] : null;
   const wordsExhausted = wordIndex >= words.length;
+
+  // Cleanup hop timeouts on unmount
+  useEffect(() => {
+    return () => hopTimeoutsRef.current.forEach(clearTimeout);
+  }, []);
 
   // Auto-resolve when words are exhausted during playing phase
   useEffect(() => {
@@ -96,73 +105,130 @@ export default function MetamorphosisGame({ words, setup }: Props) {
     // No-op: same word, same player
   }, []);
 
-  // ─── Spin complete → move piece ────────────────────────────
+  // ─── Spin complete → hop piece one space at a time ──────────
+  const HOP_ANIM_MS = 250;  // duration of the bounce-land CSS animation
+  const HOP_PAUSE_MS = 100; // pause between hops
+  const HOP_STEP_MS = HOP_ANIM_MS + HOP_PAUSE_MS; // 350ms per hop
+  const HOP_SETTLE_MS = 300; // settle time after last hop before resolving
+
   const handleSpinComplete = useCallback((value: number) => {
     setSpinResult(value);
     devOverrideRef.current = undefined;
+    setPhase('moving');
+    setWordIndex((i) => i + 1);
 
-    const player = players[currentPlayer];
-    let newPos = player.position;
-    let passedStart = false;
+    // Clear any lingering timeouts from a previous animation
+    hopTimeoutsRef.current.forEach(clearTimeout);
+    hopTimeoutsRef.current = [];
 
-    // Move one space at a time to check for passing START
+    // Snapshot the player state BEFORE movement (avoids stale-closure issues)
+    const cp = currentPlayer;
+    const player = players[cp];
+    const startPos = player.position;
+    const startTotal = player.totalMoved;
+    const upgrades = player.upgrades;
+
+    // Pre-compute the full path of hops
+    const hops: number[] = [];
+    let pos = startPos;
+    let winOnStep = -1;
+
     for (let i = 0; i < value; i++) {
-      newPos = (newPos + 1) % BOARD_SIZE;
-      // Check if we pass or land on START (only after first move ever)
-      if (newPos === START_INDEX && player.totalMoved + i + 1 > 0 && player.upgrades === 2) {
-        passedStart = true;
+      pos = (pos + 1) % BOARD_SIZE;
+      hops.push(pos);
+      // Win check: fully metamorphosed piece passes or lands on START
+      if (pos === START_INDEX && (startTotal + i + 1) > 0 && upgrades === 2) {
+        winOnStep = i;
         break;
       }
     }
 
-    const newTotalMoved = player.totalMoved + value;
-    const landedSpace = boardData[newPos];
-    const isGold = landedSpace.color === 'gold';
-    const canUpgrade = isGold && player.upgrades < 2;
+    const totalSteps = hops.length;
+    const finalPos = hops[totalSteps - 1];
+    const finalTotal = startTotal + totalSteps;
 
-    // Update player state
-    setPlayers((prev) => {
-      const next: [PlayerState, PlayerState] = [...prev] as [PlayerState, PlayerState];
-      next[currentPlayer] = {
-        ...prev[currentPlayer],
-        position: newPos,
-        totalMoved: newTotalMoved,
-        upgrades: canUpgrade ? ((prev[currentPlayer].upgrades + 1) as FormLevel) : prev[currentPlayer].upgrades,
-      };
-      return next;
+    // Schedule each hop as a position update
+    hops.forEach((hopPos, i) => {
+      const delay = i * HOP_STEP_MS + 50; // 50ms initial delay before first hop
+
+      const t = setTimeout(() => {
+        setPlayers((prev) => {
+          const next = [...prev] as [PlayerState, PlayerState];
+          next[cp] = {
+            ...prev[cp],
+            position: hopPos,
+            totalMoved: startTotal + i + 1,
+          };
+          return next;
+        });
+        setHopTick((t) => t + 1);
+      }, delay);
+
+      hopTimeoutsRef.current.push(t);
     });
 
-    // Advance word
-    setWordIndex((i) => i + 1);
+    // After all hops settle, resolve the outcome
+    const resolveDelay = (totalSteps - 1) * HOP_STEP_MS + 50 + HOP_ANIM_MS + HOP_SETTLE_MS;
 
-    // Determine what happens next
-    if (passedStart && player.upgrades === 2) {
-      // Primary win!
-      setWinInfo({ winner: currentPlayer, reason: 'primary' });
-      setPhase('won');
-      return;
-    }
+    const resolveTimeout = setTimeout(() => {
+      // 1. Primary win (crossed/landed on START while fully metamorphosed)
+      if (winOnStep >= 0) {
+        setWinInfo({ winner: cp, reason: 'primary' });
+        setPhase('won');
+        return;
+      }
 
-    if (canUpgrade) {
-      // Metamorphosis reveal
-      setMetamorphTarget({
-        player: currentPlayer,
-        newForm: (player.upgrades + 1) as FormLevel,
-      });
-      setPhase('metamorphosis');
-      return;
-    }
+      // 2. Gold space → metamorphosis upgrade
+      const landedSpace = boardData[finalPos];
+      const isGold = landedSpace.color === 'gold';
+      const canUpgrade = isGold && upgrades < 2;
 
-    // Normal turn end — check if words exhausted
-    const nextWordIdx = wordIndex + 1;
-    if (nextWordIdx >= words.length) {
-      resolveFallback(currentPlayer, newPos, newTotalMoved, canUpgrade);
-      return;
-    }
+      if (canUpgrade) {
+        // Apply the upgrade to player state
+        setPlayers((prev) => {
+          const next = [...prev] as [PlayerState, PlayerState];
+          next[cp] = {
+            ...prev[cp],
+            upgrades: (prev[cp].upgrades + 1) as FormLevel,
+          };
+          return next;
+        });
+        setMetamorphTarget({
+          player: cp,
+          newForm: (upgrades + 1) as FormLevel,
+        });
+        setPhase('metamorphosis');
+        return;
+      }
 
-    // Pass turn
-    setCurrentPlayer((p) => (p === 0 ? 1 : 0) as 0 | 1);
-    setPhase('playing');
+      // 3. Normal landing — check word exhaustion
+      // wordIndex was already incremented; captured value is pre-increment
+      const nextWordIdx = wordIndex + 1;
+      if (nextWordIdx >= words.length) {
+        // Build final states from snapshot data for the current player
+        const finalP: PlayerState = { ...player, position: finalPos, totalMoved: finalTotal };
+        const otherP = players[cp === 0 ? 1 : 0];
+        const p0 = cp === 0 ? finalP : otherP;
+        const p1 = cp === 1 ? finalP : otherP;
+
+        if (p0.upgrades !== p1.upgrades) {
+          setWinInfo({ winner: (p0.upgrades > p1.upgrades ? 0 : 1) as 0 | 1, reason: 'metamorphosis' });
+          setPhase('won');
+        } else if (p0.totalMoved !== p1.totalMoved) {
+          setWinInfo({ winner: (p0.totalMoved > p1.totalMoved ? 0 : 1) as 0 | 1, reason: 'distance' });
+          setPhase('won');
+        } else {
+          setPhase('draw');
+        }
+        return;
+      }
+
+      // 4. Pass turn
+      setCurrentPlayer((p) => (p === 0 ? 1 : 0) as 0 | 1);
+      setPhase('playing');
+    }, resolveDelay);
+
+    hopTimeoutsRef.current.push(resolveTimeout);
   }, [players, currentPlayer, wordIndex, words.length]);
 
   // ─── Metamorphosis complete ────────────────────────────────
@@ -179,29 +245,7 @@ export default function MetamorphosisGame({ words, setup }: Props) {
     setPhase('playing');
   }, [wordIndex, words.length]);
 
-  // ─── Fallback win resolution ───────────────────────────────
-  const resolveFallback = (cp: 0 | 1, newPos: number, newTotal: number, upgraded: boolean) => {
-    // Build final player states for comparison
-    const p0 = cp === 0
-      ? { ...players[0], position: newPos, totalMoved: newTotal, upgrades: upgraded ? ((players[0].upgrades + 1) as FormLevel) : players[0].upgrades }
-      : players[0];
-    const p1 = cp === 1
-      ? { ...players[1], position: newPos, totalMoved: newTotal, upgrades: upgraded ? ((players[1].upgrades + 1) as FormLevel) : players[1].upgrades }
-      : players[1];
-
-    if (p0.upgrades !== p1.upgrades) {
-      const winner = p0.upgrades > p1.upgrades ? 0 : 1;
-      setWinInfo({ winner: winner as 0 | 1, reason: 'metamorphosis' });
-      setPhase('won');
-    } else if (p0.totalMoved !== p1.totalMoved) {
-      const winner = p0.totalMoved > p1.totalMoved ? 0 : 1;
-      setWinInfo({ winner: winner as 0 | 1, reason: 'distance' });
-      setPhase('won');
-    } else {
-      setPhase('draw');
-    }
-  };
-
+  // ─── Fallback win resolution (from current state) ──────────
   const resolveFallbackFromState = () => {
     const p0 = players[0];
     const p1 = players[1];
@@ -399,6 +443,8 @@ export default function MetamorphosisGame({ words, setup }: Props) {
           players={players}
           currentPlayer={currentPlayer}
           onPieceClick={phase === 'playing' ? (idx) => setShowcasePlayer(idx) : undefined}
+          hoppingPlayer={phase === 'moving' ? currentPlayer : null}
+          hopTick={hopTick}
         />
       </div>
 
