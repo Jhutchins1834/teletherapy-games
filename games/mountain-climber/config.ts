@@ -35,12 +35,8 @@ const config: GameConfig = {
       label: 'Student Level',
       options: ['early', 'elementary', 'upper-elementary', 'teen-adult'] as LevelKey[],
     },
-    wordCount: {
-      type: 'select',
-      label: 'Word Count (mountain steps)',
-      options: [5, 10, 15, 20],
-    },
   },
+  fixedWordCount: 35,
   component: Game,
 };
 
