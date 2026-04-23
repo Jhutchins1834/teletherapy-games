@@ -7,7 +7,7 @@ const config: GameConfig = {
   id: 'mountain-climber',
   title: 'Mountain Climber',
   description:
-    'Climb to the summit one word at a time! Get every word right to reach the peak.',
+    'Race to the summit! Two climbers tackle opposite faces of the mountain — first to the top wins.',
   thumbnail: '🏔️',
   setupSchema: {
     sound: {
