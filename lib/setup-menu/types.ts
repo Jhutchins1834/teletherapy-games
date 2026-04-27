@@ -1,15 +1,24 @@
 export type LevelKey = 'early' | 'elementary' | 'upper-elementary' | 'teen-adult';
 
-export type FieldSchema = {
+export type SelectFieldSchema = {
   type: 'select';
   options: (string | number)[];
   label: string;
   helperText?: string;
 };
 
+export type CheckboxFieldSchema = {
+  type: 'checkbox';
+  label: string;
+  default: boolean;
+  helperText?: string;
+};
+
+export type FieldSchema = SelectFieldSchema | CheckboxFieldSchema;
+
 export type SetupSchema = Record<string, FieldSchema>;
 
-export type SetupChoices = Record<string, string | number>;
+export type SetupChoices = Record<string, string | number | boolean>;
 
 export type GameConfig = {
   id: string;

@@ -28,6 +28,14 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   }
 
   const handleSubmit = async (choices: SetupChoices, forceRefresh: boolean) => {
+    // If this game has a skipWords checkbox and it's checked, skip the word fetch
+    if (choices.skipWords === true) {
+      setWords([]);
+      setSetup(choices);
+      setPhase('playing');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
