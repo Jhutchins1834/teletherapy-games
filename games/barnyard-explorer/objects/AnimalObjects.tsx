@@ -31,48 +31,60 @@ function wrap(
 
 /* ─── 8. Hen on Nest ─────────────────────────────────────── */
 export function HenOnNest({ state, onDiscover }: ClickableObjectProps) {
+  const lifted = state === 'animating' || state === 'revealed';
   return (
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-110' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}>
-      {/* Nest */}
-      <svg width="56" height="52" viewBox="0 0 56 52">
-        {/* straw nest base */}
-        <ellipse cx="28" cy="44" rx="24" ry="8" fill="#C9950C" opacity="0.7"/>
-        {/* nest straws */}
-        {[-12,-6,0,6,12].map((dx,i) => (
-          <path key={i} d={`M${28+dx} 36 Q${28+dx+4} 44 ${28+dx} 50`}
-            fill="none" stroke="#8B6914" strokeWidth="2" opacity="0.8"/>
-        ))}
-        {/* eggs - visible when revealed */}
-        {(state === 'revealed') && (
+      <svg width="58" height="54" viewBox="0 0 58 54">
+        {/* Nest — brown rounded rect */}
+        <rect x="6" y="40" width="46" height="12" rx="6" fill="#784212"/>
+        {/* Straw lines */}
+        <line x1="12" y1="40" x2="10" y2="52" stroke="#F4D03F" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="20" y1="40" x2="18" y2="52" stroke="#F4D03F" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="29" y1="40" x2="29" y2="52" stroke="#F4D03F" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="38" y1="40" x2="40" y2="52" stroke="#F4D03F" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="46" y1="40" x2="48" y2="52" stroke="#F4D03F" strokeWidth="2" strokeLinecap="round"/>
+        {/* Eggs when revealed */}
+        {lifted && (
           <>
-            <ellipse cx="20" cy="42" rx="5" ry="6" fill="#FAEBD7"/>
-            <ellipse cx="28" cy="43" rx="5" ry="6" fill="#FAEBD7"/>
-            <ellipse cx="36" cy="42" rx="5" ry="6" fill="#FAEBD7"/>
+            <ellipse cx="20" cy="42" rx="5" ry="6" fill="#FDEBD0"/>
+            <ellipse cx="29" cy="41" rx="5" ry="6" fill="#FDEBD0"/>
+            <ellipse cx="38" cy="42" rx="5" ry="6" fill="#FDEBD0"/>
           </>
         )}
-        {/* Hen body */}
-        <ellipse cx="28" cy={state === 'animating' || state === 'revealed' ? '22' : '30'}
-          rx="16" ry="12" fill="#c0392b"
+        {/* Hen body — white oval */}
+        <ellipse cx="28" cy={lifted ? '24' : '32'} rx="16" ry="12" fill="#ECF0F1"
           style={{ transition: 'cy 0.5s ease-out' }}/>
-        {/* Hen head */}
-        <circle cx="40" cy={state === 'animating' || state === 'revealed' ? '16' : '24'}
-          r="8" fill="#e74c3c"
+        {/* Wing */}
+        <ellipse cx="22" cy={lifted ? '26' : '34'} rx="8" ry="5" fill="#BDC3C7"
           style={{ transition: 'cy 0.5s ease-out' }}/>
-        {/* Beak */}
-        <polygon points="48,20 52,22 48,24" fill="#F39C12"/>
-        {/* Eye */}
-        <circle cx="42" cy="19" r="1.5" fill="white"/>
-        <circle cx="42.5" cy="19" r="0.8" fill="#1a1a1a"/>
-        {/* Comb */}
-        <polygon points="38,10 40,14 42,10 44,14 46,10" fill="#e74c3c"/>
-        {/* Wing detail */}
-        <path d="M20 28 Q24 24 28 28" fill="none" stroke="#922B21" strokeWidth="1.5"/>
-        {/* Feather ruffle when animating */}
+        {/* Head — white circle */}
+        <circle cx="40" cy={lifted ? '18' : '26'} r="9" fill="#ECF0F1"
+          style={{ transition: 'cy 0.5s ease-out' }}/>
+        {/* Comb — 3 red bumps */}
+        <circle cx="37" cy={lifted ? '10' : '18'} r="3" fill="#E74C3C"
+          style={{ transition: 'cy 0.5s ease-out' }}/>
+        <circle cx="41" cy={lifted ? '9' : '17'} r="3" fill="#C0392B"
+          style={{ transition: 'cy 0.5s ease-out' }}/>
+        <circle cx="45" cy={lifted ? '10' : '18'} r="2.5" fill="#E74C3C"
+          style={{ transition: 'cy 0.5s ease-out' }}/>
+        {/* Beak — orange triangle */}
+        <polygon
+          points={lifted ? '48,18 54,20 48,22' : '48,26 54,28 48,30'}
+          fill="#F39C12"
+          style={{ transition: 'points 0.5s ease-out' }}
+        />
+        {/* Eye dot */}
+        <circle cx="42" cy={lifted ? '18' : '26'} r="1.8" fill="#1A252F"
+          style={{ transition: 'cy 0.5s ease-out' }}/>
+        {/* Legs — orange rects */}
+        <rect x="24" y="43" width="4" height="8" rx="2" fill="#F39C12"/>
+        <rect x="30" y="43" width="4" height="8" rx="2" fill="#F39C12"/>
+        {/* Feather ruffle */}
         {state === 'animating' && (
           <>
-            <circle cx="15" cy="24" r="3" fill="#e74c3c" style={{ animation: 'feather-fly 0.8s ease-out forwards' }}/>
-            <circle cx="42" cy="18" r="2" fill="#e74c3c" style={{ animation: 'feather-fly 0.8s ease-out 0.1s forwards' }}/>
+            <circle cx="14" cy="26" r="4" fill="#ECF0F1" style={{ animation: 'feather-fly 0.8s ease-out forwards' }}/>
+            <circle cx="42" cy="14" r="3" fill="#BDC3C7" style={{ animation: 'feather-fly 0.8s ease-out 0.1s forwards' }}/>
           </>
         )}
       </svg>
@@ -88,43 +100,43 @@ export function Cow({ state, onDiscover }: ClickableObjectProps) {
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-105' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}
       style={{ animation: state === 'animating' ? 'cow-moo 0.7s ease-in-out' : 'none' }}>
-      <svg width="70" height="54" viewBox="0 0 70 54">
-        {/* Body */}
-        <ellipse cx="32" cy="36" rx="26" ry="16" fill="#F5F5DC" stroke="#A0A0A0" strokeWidth="1"/>
-        {/* Spots */}
-        <ellipse cx="22" cy="32" rx="8" ry="6" fill="#3d3d3d" opacity="0.4"/>
-        <ellipse cx="38" cy="40" rx="6" ry="5" fill="#3d3d3d" opacity="0.35"/>
-        {/* Head */}
-        <ellipse cx="56" cy="28" rx="13" ry="11" fill="#F5F5DC" stroke="#A0A0A0" strokeWidth="1"/>
-        {/* Muzzle */}
-        <ellipse cx="63" cy="32" rx="7" ry="5" fill="#F4C2C2"/>
-        <circle cx="61" cy="32" r="1.5" fill="#8B4513"/>
-        <circle cx="65" cy="32" r="1.5" fill="#8B4513"/>
-        {/* Eye */}
-        <circle cx="54" cy="24" r="2.5" fill="#1a1a1a"/>
-        <circle cx="53.5" cy="23.5" r="0.8" fill="white"/>
-        {/* Ear */}
-        <ellipse cx="46" cy="20" rx="4" ry="6" fill="#F4C2C2" transform="rotate(-20 46 20)"/>
-        {/* Horns */}
-        <path d="M47 16 Q44 8 40 10" fill="none" stroke="#D4AC0D" strokeWidth="3" strokeLinecap="round"/>
-        {/* Mouth - open when mooing */}
-        {moo ? (
-          <path d="M60 34 Q64 38 68 34" fill="#c0392b" stroke="#922B21" strokeWidth="1"/>
-        ) : (
-          <path d="M60 34 Q64 36 68 34" fill="none" stroke="#8B4513" strokeWidth="1.5"/>
-        )}
-        {/* Legs */}
-        {[12,22,36,46].map((x,i) => (
-          <rect key={i} x={x} y="48" width="6" height="14" rx="2" fill="#F5F5DC" stroke="#A0A0A0" strokeWidth="0.8"
-            transform={`translate(0,-12)`}/>
-        ))}
-        {/* Tail */}
-        <path d="M6 30 Q-2 22 4 14" fill="none" stroke="#A0A0A0" strokeWidth="3" strokeLinecap="round"/>
-        <circle cx="4" cy="13" r="3" fill="#8B6914"/>
+      <svg width="72" height="56" viewBox="0 0 72 56">
+        {/* Body — white rounded rect */}
+        <rect x="4" y="22" width="48" height="28" rx="10" fill="#ECF0F1"/>
+        {/* Brown patches */}
+        <ellipse cx="18" cy="28" rx="10" ry="8" fill="#784212" opacity="0.5"/>
+        <ellipse cx="38" cy="36" rx="8" ry="6" fill="#784212" opacity="0.45"/>
+        {/* Legs — four short rects */}
+        <rect x="10" y="46" width="7" height="12" rx="3.5" fill="#ECF0F1"/>
+        <rect x="20" y="46" width="7" height="12" rx="3.5" fill="#ECF0F1"/>
+        <rect x="32" y="46" width="7" height="12" rx="3.5" fill="#ECF0F1"/>
+        <rect x="42" y="46" width="7" height="12" rx="3.5" fill="#ECF0F1"/>
         {/* Udder */}
-        <ellipse cx="28" cy="50" rx="10" ry="5" fill="#F4C2C2"/>
+        <ellipse cx="28" cy="50" rx="12" ry="5" fill="#F5B7B1"/>
+        {/* Tail */}
+        <path d="M4 28 Q-4 20 2 12" fill="none" stroke="#BDC3C7" strokeWidth="3" strokeLinecap="round"/>
+        <circle cx="2" cy="11" r="4" fill="#784212"/>
+        {/* Head — white rounded rect */}
+        <rect x="50" y="16" width="20" height="28" rx="8" fill="#ECF0F1"/>
+        {/* Muzzle — pink oval */}
+        <ellipse cx="64" cy="34" rx="8" ry="6" fill="#F5B7B1"/>
+        {/* Nostrils */}
+        <circle cx="61" cy="34" r="1.8" fill="#C0392B"/>
+        <circle cx="67" cy="34" r="1.8" fill="#C0392B"/>
+        {/* Eye */}
+        <circle cx="56" cy="22" r="3" fill="#1A252F"/>
+        <circle cx="55" cy="21" r="1" fill="#ECF0F1"/>
+        {/* Ear */}
+        <ellipse cx="52" cy="18" rx="5" ry="7" fill="#F5B7B1" transform="rotate(-15 52 18)"/>
+        {/* Horns */}
+        <path d="M54 16 Q50 8 46 10" fill="none" stroke="#F4D03F" strokeWidth="4" strokeLinecap="round"/>
+        {/* Mouth */}
+        {moo ? (
+          <path d="M60 38 Q64 42 68 38" fill="#C0392B"/>
+        ) : (
+          <path d="M60 38 Q64 40 68 38" fill="none" stroke="#784212" strokeWidth="2" strokeLinecap="round"/>
+        )}
       </svg>
-      {/* Speech bubble moo */}
       {moo && (
         <div className="absolute -top-6 right-0 bg-white rounded-xl px-2 py-0.5 text-xs font-bold text-gray-700 shadow border border-gray-200"
           style={{ animation: 'bubble-pop 0.3s ease-out' }}>
@@ -141,33 +153,34 @@ export function Pig({ state, onDiscover }: ClickableObjectProps) {
   return wrap(state, onDiscover,
     { animation: 'pig-flop 0.8s ease-in-out forwards' },
     (
-      <svg width="56" height="42" viewBox="0 0 56 42">
-        {/* Body */}
-        <ellipse cx="28" cy="26" rx="22" ry="14" fill="#FFB6C1" stroke="#FF8FA0" strokeWidth="1"/>
-        {/* Head */}
-        <circle cx="46" cy="20" r="12" fill="#FFB6C1" stroke="#FF8FA0" strokeWidth="1"/>
-        {/* Snout */}
-        <ellipse cx="50" cy="24" rx="7" ry="5" fill="#FF9999"/>
-        <circle cx="48" cy="24" r="1.5" fill="#8B4565"/>
-        <circle cx="52" cy="24" r="1.5" fill="#8B4565"/>
-        {/* Eye */}
-        <circle cx="44" cy="17" r="2" fill="#1a1a1a"/>
-        <circle cx="43.5" cy="16.5" r="0.7" fill="white"/>
-        {/* Ear */}
-        <polygon points="38,10 34,2 42,4" fill="#FF8FA0"/>
+      <svg width="60" height="48" viewBox="0 0 60 48">
+        {/* Body — pink rounded rect */}
+        <rect x="4" y="16" width="40" height="26" rx="10" fill="#F5B7B1"/>
         {/* Legs */}
-        {[8,18,32,42].map((x,i) => (
-          <rect key={i} x={x} y="36" width="7" height="10" rx="3" fill="#FFB6C1" stroke="#FF8FA0" strokeWidth="0.8"
-            transform="translate(0,-4)"/>
-        ))}
-        {/* Tail curl */}
-        <path d="M6 24 Q0 18 4 14 Q8 10 6 6" fill="none" stroke="#FF8FA0" strokeWidth="2.5" strokeLinecap="round"/>
-        {/* Mud splatter when animating/revealed */}
+        <rect x="8"  y="36" width="7" height="12" rx="3.5" fill="#F5B7B1"/>
+        <rect x="17" y="36" width="7" height="12" rx="3.5" fill="#F5B7B1"/>
+        <rect x="28" y="36" width="7" height="12" rx="3.5" fill="#F5B7B1"/>
+        <rect x="37" y="36" width="7" height="12" rx="3.5" fill="#F5B7B1"/>
+        {/* Tail — curly */}
+        <path d="M4 24 Q-4 20 0 14 Q4 8 2 4" fill="none" stroke="#F5B7B1" strokeWidth="3" strokeLinecap="round"/>
+        {/* Head — circle */}
+        <circle cx="48" cy="24" r="13" fill="#F5B7B1"/>
+        {/* Snout — darker pink circle */}
+        <ellipse cx="52" cy="28" rx="8" ry="6" fill="#E8A0B0"/>
+        {/* Nostrils */}
+        <circle cx="49" cy="28" r="1.8" fill="#922B21"/>
+        <circle cx="55" cy="28" r="1.8" fill="#922B21"/>
+        {/* Eye */}
+        <circle cx="44" cy="20" r="2.5" fill="#1A252F"/>
+        <circle cx="43" cy="19" r="0.8" fill="#ECF0F1"/>
+        {/* Ear — triangle */}
+        <polygon points="40,12 36,4 44,6" fill="#E8A0B0"/>
+        {/* Mud when animating/revealed */}
         {(state === 'animating' || state === 'revealed') && (
           <>
-            <circle cx="10" cy="38" r="4" fill="#8B6914" opacity="0.5"/>
-            <circle cx="25" cy="40" r="5" fill="#8B6914" opacity="0.45"/>
-            <circle cx="40" cy="39" r="3" fill="#8B6914" opacity="0.5"/>
+            <circle cx="10" cy="44" r="5" fill="#784212" opacity="0.4"/>
+            <circle cx="26" cy="46" r="6" fill="#784212" opacity="0.35"/>
+            <circle cx="42" cy="44" r="4" fill="#784212" opacity="0.4"/>
           </>
         )}
       </svg>
@@ -181,30 +194,33 @@ export function Horse({ state, onDiscover }: ClickableObjectProps) {
   return wrap(state, onDiscover,
     { animation: 'horse-stomp 0.6s ease-in-out' },
     (
-      <svg width="60" height="60" viewBox="0 0 60 60">
-        {/* Stall wall */}
-        <rect x="0" y="30" width="60" height="30" rx="2" fill="#8B6914" opacity="0.4"/>
-        <line x1="0" y1="30" x2="60" y2="30" stroke="#5C4A1E" strokeWidth="3"/>
-        {/* Head poking over */}
-        <ellipse cx="30" cy="22" rx="16" ry="14" fill="#C8A882" stroke="#8B6914" strokeWidth="1.5"/>
-        {/* Nose */}
-        <ellipse cx="30" cy="30" rx="10" ry="6" fill="#B8956E"/>
-        <circle cx="26" cy="30" r="1.5" fill="#5C3A1E"/>
-        <circle cx="34" cy="30" r="1.5" fill="#5C3A1E"/>
-        {/* Eyes */}
-        <circle cx="20" cy="18" r="3" fill="#1a1a1a"/>
-        <circle cx="19.5" cy="17.5" r="1" fill="white"/>
+      <svg width="64" height="62" viewBox="0 0 64 62">
+        {/* Fence rail — horse pokes head over */}
+        <rect x="0" y="34" width="64" height="5" rx="2.5" fill="#D4A574"/>
+        <rect x="0" y="42" width="64" height="5" rx="2.5" fill="#D4A574"/>
+        {/* Fence post */}
+        <rect x="28" y="32" width="8" height="30" rx="3" fill="#8B4513"/>
+        {/* Head — brown rounded rect */}
+        <rect x="16" y="10" width="24" height="30" rx="8" fill="#784212"/>
+        {/* Mane — dark jagged strip */}
+        <rect x="14" y="8" width="8" height="28" rx="4" fill="#2C1A0E"/>
         {/* Ears */}
-        <polygon points="22,6 18,0 26,2" fill="#C8A882" stroke="#8B6914" strokeWidth="0.8"/>
-        <polygon points="38,6 34,0 42,2" fill="#C8A882" stroke="#8B6914" strokeWidth="0.8"/>
-        {/* Mane */}
-        <path d="M16 8 Q12 14 14 22" fill="none" stroke="#5C3A1E" strokeWidth="3" strokeLinecap="round"/>
-        {/* Dust poof when stomping */}
+        <polygon points="18,10 14,2 22,4" fill="#784212"/>
+        <polygon points="36,10 32,2 40,4" fill="#784212"/>
+        {/* Nose area */}
+        <ellipse cx="28" cy="34" rx="9" ry="6" fill="#5D3A1A"/>
+        {/* Nostrils */}
+        <circle cx="25" cy="34" r="1.8" fill="#2C1A0E"/>
+        <circle cx="31" cy="34" r="1.8" fill="#2C1A0E"/>
+        {/* Eye */}
+        <circle cx="22" cy="20" r="3.5" fill="#1A252F"/>
+        <circle cx="21" cy="19" r="1.2" fill="#ECF0F1"/>
+        {/* Dust when stomping */}
         {state === 'animating' && (
           <g style={{ animation: 'dust-poof 0.6s ease-out forwards' }}>
-            <circle cx="18" cy="52" r="6" fill="#D4C4A8" opacity="0.6"/>
-            <circle cx="30" cy="54" r="5" fill="#D4C4A8" opacity="0.5"/>
-            <circle cx="42" cy="52" r="6" fill="#D4C4A8" opacity="0.6"/>
+            <circle cx="16" cy="54" r="6" fill="#D4A574" opacity="0.5"/>
+            <circle cx="32" cy="56" r="5" fill="#D4A574" opacity="0.45"/>
+            <circle cx="48" cy="54" r="6" fill="#D4A574" opacity="0.5"/>
           </g>
         )}
       </svg>
@@ -217,30 +233,34 @@ export function Goat({ state, onDiscover }: ClickableObjectProps) {
   return wrap(state, onDiscover,
     { animation: 'goat-headbutt 0.7s ease-in-out' },
     (
-      <svg width="62" height="46" viewBox="0 0 62 46">
-        {/* Body */}
-        <ellipse cx="24" cy="30" rx="18" ry="12" fill="#D2B48C" stroke="#A08060" strokeWidth="1"/>
-        {/* Head */}
-        <ellipse cx="44" cy="20" rx="12" ry="10" fill="#D2B48C" stroke="#A08060" strokeWidth="1"/>
-        {/* Beard */}
-        <path d="M44 28 Q42 34 44 38" fill="none" stroke="#E8D5B7" strokeWidth="3" strokeLinecap="round"/>
-        {/* Snout */}
-        <ellipse cx="50" cy="22" rx="6" ry="4" fill="#C4A882"/>
-        <circle cx="48" cy="22" r="1.2" fill="#5C3A1E"/>
-        <circle cx="52" cy="22" r="1.2" fill="#5C3A1E"/>
-        {/* Eye */}
-        <ellipse cx="42" cy="17" rx="2.5" ry="2" fill="#1a1a1a"/>
-        <circle cx="41.5" cy="16.5" r="0.7" fill="white"/>
-        {/* Horns */}
-        <path d="M40 10 Q38 2 35 6" fill="none" stroke="#8B7355" strokeWidth="3" strokeLinecap="round"/>
-        <path d="M46 10 Q48 2 51 6" fill="none" stroke="#8B7355" strokeWidth="3" strokeLinecap="round"/>
+      <svg width="66" height="50" viewBox="0 0 66 50">
+        {/* Body — tan rounded rect */}
+        <rect x="2" y="18" width="38" height="24" rx="9" fill="#FDEBD0"/>
         {/* Legs */}
-        {[8,16,28,36].map((x,i) => (
-          <rect key={i} x={x} y="38" width="5" height="10" rx="2" fill="#D2B48C" stroke="#A08060" strokeWidth="0.8"
-            transform="translate(0,-4)"/>
-        ))}
-        {/* Fence post target */}
-        <rect x="56" y="10" width="6" height="36" rx="2" fill="#8B6914"
+        <rect x="6"  y="36" width="6" height="14" rx="3" fill="#FDEBD0"/>
+        <rect x="14" y="36" width="6" height="14" rx="3" fill="#FDEBD0"/>
+        <rect x="24" y="36" width="6" height="14" rx="3" fill="#FDEBD0"/>
+        <rect x="32" y="36" width="6" height="14" rx="3" fill="#FDEBD0"/>
+        {/* Tail */}
+        <ellipse cx="4" cy="22" rx="4" ry="6" fill="#E8DACC" transform="rotate(-20 4 22)"/>
+        {/* Neck */}
+        <rect x="34" y="12" width="14" height="20" rx="5" fill="#FDEBD0"/>
+        {/* Head */}
+        <ellipse cx="50" cy="16" rx="14" ry="12" fill="#FDEBD0"/>
+        {/* Beard */}
+        <rect x="47" y="26" width="6" height="10" rx="3" fill="#E8DACC"/>
+        {/* Snout */}
+        <ellipse cx="56" cy="18" rx="7" ry="5" fill="#E8DACC"/>
+        <circle cx="54" cy="18" r="1.5" fill="#2C1A0E"/>
+        <circle cx="58" cy="18" r="1.5" fill="#2C1A0E"/>
+        {/* Eye */}
+        <ellipse cx="48" cy="13" rx="3" ry="2.5" fill="#1A252F"/>
+        <circle cx="47" cy="12" r="0.8" fill="#ECF0F1"/>
+        {/* Horns */}
+        <path d="M42 6 Q38 0 35 4" fill="none" stroke="#A08060" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M48 6 Q50 0 54 3" fill="none" stroke="#A08060" strokeWidth="3" strokeLinecap="round"/>
+        {/* Fence post */}
+        <rect x="59" y="8" width="7" height="42" rx="3" fill="#8B4513"
           style={state === 'animating' ? { animation: 'post-wobble 0.7s ease-in-out' } : undefined}/>
       </svg>
     ),
@@ -254,29 +274,33 @@ export function Sheep({ state, onDiscover }: ClickableObjectProps) {
     { animation: 'sheep-shake 0.6s ease-in-out' },
     (
       <div className="relative">
-        <svg width="58" height="44" viewBox="0 0 58 44">
-          {/* Fluffy wool body - multiple circles */}
-          {[[14,18,14],[22,14,16],[32,14,16],[42,18,14],[14,28,14],[22,26,16],[32,26,16],[42,28,14]].map(([cx,cy,r],i) => (
-            <circle key={i} cx={cx} cy={cy} r={r} fill="#F5F5F0" stroke="#E0E0DC" strokeWidth="0.8"/>
-          ))}
-          {/* Head */}
-          <ellipse cx="50" cy="22" rx="9" ry="8" fill="#D3D3D3" stroke="#B0B0B0" strokeWidth="1"/>
+        <svg width="62" height="48" viewBox="0 0 62 48">
+          {/* Fluffy wool — overlapping white circles */}
+          <circle cx="14" cy="22" r="13" fill="#ECF0F1"/>
+          <circle cx="26" cy="16" r="14" fill="#ECF0F1"/>
+          <circle cx="38" cy="16" r="14" fill="#ECF0F1"/>
+          <circle cx="48" cy="22" r="12" fill="#ECF0F1"/>
+          <circle cx="14" cy="30" r="12" fill="#ECF0F1"/>
+          <circle cx="26" cy="32" r="13" fill="#ECF0F1"/>
+          <circle cx="38" cy="32" r="13" fill="#ECF0F1"/>
+          <circle cx="48" cy="30" r="11" fill="#ECF0F1"/>
+          {/* Head — dark rounded rect */}
+          <rect x="46" y="18" width="16" height="18" rx="6" fill="#85929E"/>
           {/* Face */}
-          <circle cx="52" cy="22" r="1.5" fill="#1a1a1a"/>
-          <path d="M48 26 Q50 28 52 26" fill="none" stroke="#8B8B8B" strokeWidth="1"/>
+          <circle cx="57" cy="24" r="2" fill="#1A252F"/>
+          <path d="M52 30 Q55 32 58 30" fill="none" stroke="#5D6D7E" strokeWidth="1.5" strokeLinecap="round"/>
           {/* Ear */}
-          <ellipse cx="44" cy="16" rx="4" ry="6" fill="#D3D3D3" transform="rotate(-20 44 16)"/>
-          {/* Legs */}
-          {[12,22,32,42].map((x,i) => (
-            <rect key={i} x={x} y="38" width="5" height="10" rx="2" fill="#D3D3D3"
-              transform="translate(0,-4)"/>
-          ))}
+          <ellipse cx="48" cy="20" rx="4" ry="6" fill="#717D7E" transform="rotate(-15 48 20)"/>
+          {/* Legs — thin dark */}
+          <rect x="13" y="38" width="5" height="12" rx="2.5" fill="#717D7E"/>
+          <rect x="22" y="38" width="5" height="12" rx="2.5" fill="#717D7E"/>
+          <rect x="34" y="38" width="5" height="12" rx="2.5" fill="#717D7E"/>
+          <rect x="43" y="38" width="5" height="12" rx="2.5" fill="#717D7E"/>
         </svg>
-        {/* Flying wool tuft */}
         {state === 'animating' && (
-          <div className="absolute top-0 right-2 text-2xl pointer-events-none"
-            style={{ animation: 'wool-fly 1s ease-out forwards' }}>
-            🌫️
+          <div className="absolute top-0 right-2 pointer-events-none"
+            style={{ animation: 'wool-fly 1s ease-out forwards', fontSize: '20px', color: '#ECF0F1' }}>
+            ✦
           </div>
         )}
       </div>
@@ -289,38 +313,55 @@ export function Mouse({ state, onDiscover }: ClickableObjectProps) {
   return (
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-110' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}>
-      <svg width="54" height="36" viewBox="0 0 54 36">
-        {/* Cheese wheel */}
-        <ellipse cx="28" cy="26" rx="22" ry="10" fill="#F5C518" stroke="#D4AC0D" strokeWidth="1.5"/>
-        <ellipse cx="28" cy="22" rx="22" ry="10" fill="#FFD700" stroke="#D4AC0D" strokeWidth="1.5"/>
+      <svg width="56" height="38" viewBox="0 0 56 38">
+        {/* Cheese wheel — yellow cylinder */}
+        <ellipse cx="28" cy="28" rx="24" ry="10" fill="#F4D03F"/>
+        <ellipse cx="28" cy="22" rx="24" ry="10" fill="#F9E79F"/>
         {/* Cheese holes */}
-        <ellipse cx="18" cy="20" rx="3" ry="2.5" fill="#E6B800" opacity="0.6"/>
-        <ellipse cx="30" cy="18" rx="2.5" ry="2" fill="#E6B800" opacity="0.6"/>
-        <ellipse cx="38" cy="22" rx="3" ry="2" fill="#E6B800" opacity="0.6"/>
-        {/* Mouse */}
-        <ellipse cx={state === 'animating' || state === 'revealed' ? '40' : '14'} cy="14"
-          rx="8" ry="5" fill="#8B8B8B"
-          style={{ transition: 'cx 0.7s ease-in-out' }}/>
-        <circle cx={state === 'animating' || state === 'revealed' ? '46' : '20'} cy="11"
-          r="5" fill="#8B8B8B"
-          style={{ transition: 'cx 0.7s ease-in-out' }}/>
-        {/* Ears */}
-        <circle cx={state === 'animating' || state === 'revealed' ? '43' : '17'} cy="8"
-          r="3" fill="#8B8B8B"
-          style={{ transition: 'cx 0.7s ease-in-out' }}/>
-        <circle cx={state === 'animating' || state === 'revealed' ? '49' : '23'} cy="8"
-          r="3" fill="#8B8B8B"
-          style={{ transition: 'cx 0.7s ease-in-out' }}/>
+        <ellipse cx="18" cy="20" rx="4" ry="3" fill="#F4D03F"/>
+        <ellipse cx="30" cy="18" rx="3" ry="2.5" fill="#F4D03F"/>
+        <ellipse cx="40" cy="22" rx="4" ry="2.5" fill="#F4D03F"/>
+        {/* Mouse body */}
+        <ellipse
+          cx={state === 'animating' || state === 'revealed' ? '40' : '14'} cy="14"
+          rx="8" ry="6" fill="#85929E"
+          style={{ transition: 'cx 0.7s ease-in-out' }}
+        />
+        {/* Mouse head */}
+        <circle
+          cx={state === 'animating' || state === 'revealed' ? '47' : '21'} cy="11"
+          r="6" fill="#717D7E"
+          style={{ transition: 'cx 0.7s ease-in-out' }}
+        />
+        {/* Ears — two circles */}
+        <circle
+          cx={state === 'animating' || state === 'revealed' ? '43' : '17'} cy="7"
+          r="4" fill="#85929E"
+          style={{ transition: 'cx 0.7s ease-in-out' }}
+        />
+        <circle
+          cx={state === 'animating' || state === 'revealed' ? '50' : '24'} cy="7"
+          r="4" fill="#85929E"
+          style={{ transition: 'cx 0.7s ease-in-out' }}
+        />
         {/* Eye */}
-        <circle cx={state === 'animating' || state === 'revealed' ? '49' : '23'} cy="10"
-          r="1.5" fill="#1a1a1a"
-          style={{ transition: 'cx 0.7s ease-in-out' }}/>
+        <circle
+          cx={state === 'animating' || state === 'revealed' ? '50' : '24'} cy="10"
+          r="1.8" fill="#1A252F"
+          style={{ transition: 'cx 0.7s ease-in-out' }}
+        />
+        {/* Nose */}
+        <circle
+          cx={state === 'animating' || state === 'revealed' ? '53' : '27'} cy="12"
+          r="1.2" fill="#E74C3C"
+          style={{ transition: 'cx 0.7s ease-in-out' }}
+        />
         {/* Tail */}
-        <path d={state === 'animating' || state === 'revealed'
-          ? 'M32 15 Q22 18 14 14'
-          : 'M6 14 Q2 10 4 6'}
-          fill="none" stroke="#8B8B8B" strokeWidth="1.5" strokeLinecap="round"
-          style={{ transition: 'd 0.7s ease-in-out' }}/>
+        <path
+          d={state === 'animating' || state === 'revealed' ? 'M32 15 Q22 18 14 14' : 'M6 14 Q2 10 4 6'}
+          fill="none" stroke="#85929E" strokeWidth="2" strokeLinecap="round"
+          style={{ transition: 'd 0.7s ease-in-out' }}
+        />
       </svg>
       {discovered(state)}
     </div>
@@ -333,41 +374,42 @@ export function Rooster({ state, onDiscover }: ClickableObjectProps) {
     { animation: 'rooster-crow 0.9s ease-out' },
     (
       <div className="relative">
-        <svg width="44" height="56" viewBox="0 0 44 56">
+        <svg width="46" height="62" viewBox="0 0 46 62">
           {/* Fence post base */}
-          <rect x="17" y="38" width="10" height="18" rx="2" fill="#8B6914"/>
-          {/* Body */}
-          <ellipse cx="22" cy="36" rx="12" ry="10" fill="#8B0000"/>
-          {/* Tail feathers */}
-          <path d="M10 32 Q4 22 8 14" fill="none" stroke="#c0392b" strokeWidth="4" strokeLinecap="round"/>
-          <path d="M10 34 Q0 26 2 18" fill="none" stroke="#922B21" strokeWidth="3" strokeLinecap="round"/>
-          <path d="M12 36 Q6 30 10 22" fill="none" stroke="#F39C12" strokeWidth="3" strokeLinecap="round"/>
+          <rect x="18" y="42" width="10" height="20" rx="3" fill="#8B4513"/>
+          {/* Body — dark red oval */}
+          <ellipse cx="22" cy="38" rx="13" ry="11" fill="#922B21"/>
+          {/* Colorful tail feathers — arcs */}
+          <path d="M10 34 Q4 24 8 14" fill="none" stroke="#E74C3C" strokeWidth="5" strokeLinecap="round"/>
+          <path d="M10 36 Q0 28 2 18" fill="none" stroke="#2ECC71" strokeWidth="4" strokeLinecap="round"/>
+          <path d="M12 38 Q6 32 10 22" fill="none" stroke="#3498DB" strokeWidth="4" strokeLinecap="round"/>
+          {/* Wing */}
+          <ellipse cx="16" cy="36" rx="8" ry="5" fill="#7B241C" transform="rotate(10 16 36)"/>
           {/* Head */}
-          <circle cx="32" cy="22" r="9" fill="#8B0000"/>
+          <circle cx="32" cy="24" r="10" fill="#922B21"/>
           {/* Comb */}
-          <path d="M28 14 Q30 10 32 14 Q34 10 36 14" fill="#e74c3c" stroke="#c0392b" strokeWidth="0.5"/>
+          <circle cx="30" cy="14" r="4" fill="#E74C3C"/>
+          <circle cx="35" cy="13" r="4" fill="#C0392B"/>
+          <circle cx="39" cy="15" r="3.5" fill="#E74C3C"/>
           {/* Wattle */}
-          <ellipse cx="35" cy="26" rx="4" ry="5" fill="#e74c3c"/>
-          {/* Beak - open when crowing */}
+          <ellipse cx="36" cy="30" rx="4" ry="5" fill="#E74C3C"/>
+          {/* Beak */}
           {state === 'animating' ? (
             <>
-              <polygon points="38,20 44,18 38,22" fill="#F39C12"/>
-              <polygon points="38,22 44,22 38,24" fill="#E67E22"/>
+              <polygon points="40,22 46,20 40,24" fill="#F39C12"/>
+              <polygon points="40,24 46,24 40,26" fill="#E67E22"/>
             </>
           ) : (
-            <polygon points="38,20 44,22 38,24" fill="#F39C12"/>
+            <polygon points="40,22 46,24 40,26" fill="#F39C12"/>
           )}
           {/* Eye */}
-          <circle cx="30" cy="20" r="2.5" fill="#F39C12"/>
-          <circle cx="30" cy="20" r="1.5" fill="#1a1a1a"/>
-          {/* Wing */}
-          <path d="M14 32 Q16 26 24 28" fill="#922B21"/>
+          <circle cx="30" cy="22" r="3" fill="#F4D03F"/>
+          <circle cx="30" cy="22" r="1.8" fill="#1A252F"/>
         </svg>
-        {/* Crow burst */}
         {state === 'animating' && (
-          <div className="absolute -top-4 -right-4 text-lg pointer-events-none"
-            style={{ animation: 'crow-burst 0.8s ease-out forwards' }}>
-            💥
+          <div className="absolute -top-4 -right-2 pointer-events-none"
+            style={{ animation: 'crow-burst 0.8s ease-out forwards', fontSize: '18px' }}>
+            ✦
           </div>
         )}
       </div>

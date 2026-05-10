@@ -15,37 +15,39 @@ export function AppleTree({ state, onDiscover }: ClickableObjectProps) {
   return (
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-105' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}>
-      <svg width="64" height="80" viewBox="0 0 64 80">
-        {/* Trunk */}
-        <rect x="26" y="52" width="12" height="28" rx="4" fill="#8B6914" stroke="#5C4A1E" strokeWidth="1"/>
-        {/* Foliage layers */}
-        <circle cx="32" cy="36" r="24" fill="#27AE60"/>
-        <circle cx="16" cy="42" r="16" fill="#2ECC71"/>
-        <circle cx="48" cy="42" r="16" fill="#2ECC71"/>
-        <circle cx="32" cy="22" r="18" fill="#2ECC71"/>
-        {/* Apples hanging */}
-        <circle cx="20" cy="32" r="5" fill="#e74c3c"/>
-        <line x1="20" y1="27" x2="20" y2="24" stroke="#27AE60" strokeWidth="1.5"/>
-        <circle cx="42" cy="28" r="5" fill="#e74c3c"/>
-        <line x1="42" y1="23" x2="42" y2="20" stroke="#27AE60" strokeWidth="1.5"/>
-        <circle cx="30" cy="44" r="5" fill="#e74c3c"/>
-        <line x1="30" y1="39" x2="30" y2="36" stroke="#27AE60" strokeWidth="1.5"/>
+      <svg width="70" height="84" viewBox="0 0 70 84">
+        {/* Trunk — brown rect */}
+        <rect x="28" y="54" width="14" height="30" rx="5" fill="#784212"/>
+        {/* Canopy — overlapping green circles */}
+        <circle cx="35" cy="38" r="26" fill="#27AE60"/>
+        <circle cx="16" cy="44" r="18" fill="#2ECC71"/>
+        <circle cx="54" cy="44" r="18" fill="#2ECC71"/>
+        <circle cx="35" cy="22" r="20" fill="#2ECC71"/>
+        {/* Top highlight */}
+        <circle cx="35" cy="18" r="12" fill="#27AE60" opacity="0.6"/>
+        {/* Static apples */}
+        <circle cx="20" cy="32" r="5" fill="#C0392B"/>
+        <circle cx="44" cy="26" r="5" fill="#E74C3C"/>
+        <circle cx="30" cy="44" r="5" fill="#C0392B"/>
+        {/* Apple stems */}
+        <rect x="19" y="26" width="2" height="5" rx="1" fill="#27AE60"/>
+        <rect x="43" y="20" width="2" height="5" rx="1" fill="#27AE60"/>
+        <rect x="29" y="38" width="2" height="5" rx="1" fill="#27AE60"/>
         {/* Falling apple */}
         <circle
-          cx="42"
-          cy={falling ? '70' : landed ? '74' : '28'}
-          r="5" fill="#c0392b"
+          cx="44"
+          cy={falling ? '72' : landed ? '76' : '26'}
+          r="6" fill="#E74C3C"
           style={{
             transition: falling ? 'cy 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
             animation: landed ? 'apple-bounce 0.4s ease-out' : 'none',
           }}
         />
-        {/* Apple highlight */}
-        <circle
-          cx="44"
-          cy={falling ? '68' : landed ? '72' : '26'}
-          r="1.5" fill="rgba(255,255,255,0.5)"
-          style={{ transition: falling ? 'cy 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none' }}
+        {/* Falling apple stem */}
+        <rect
+          x="43" y={falling ? '65' : landed ? '69' : '19'}
+          width="2" height="5" rx="1" fill="#27AE60"
+          style={{ transition: falling ? 'y 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none' }}
         />
       </svg>
       {discovered(state)}
@@ -59,33 +61,33 @@ export function Cloud({ state, onDiscover }: ClickableObjectProps) {
   return (
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-105' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}>
-      <svg width="100" height="54" viewBox="0 0 100 54">
-        {/* Sun rays revealed when cloud drifts */}
+      <svg width="110" height="58" viewBox="0 0 110 58">
+        {/* Sun revealed when cloud drifts — flat yellow circle with ray lines */}
         {drifted && (
           <g>
             {[0,30,60,90,120,150,180,210,240,270,300,330].map((angle) => (
               <line key={angle}
-                x1={82 + Math.cos(angle*Math.PI/180)*20}
-                y1={28 + Math.sin(angle*Math.PI/180)*20}
-                x2={82 + Math.cos(angle*Math.PI/180)*30}
-                y2={28 + Math.sin(angle*Math.PI/180)*30}
-                stroke="#F39C12" strokeWidth="2.5" strokeLinecap="round"
+                x1={88 + Math.cos(angle * Math.PI / 180) * 22}
+                y1={30 + Math.sin(angle * Math.PI / 180) * 22}
+                x2={88 + Math.cos(angle * Math.PI / 180) * 32}
+                y2={30 + Math.sin(angle * Math.PI / 180) * 32}
+                stroke="#F39C12" strokeWidth="3" strokeLinecap="round"
                 style={{ animation: 'ray-grow 0.5s ease-out forwards' }}
               />
             ))}
-            <circle cx="82" cy="28" r="18" fill="#F1C40F"
+            <circle cx="88" cy="30" r="20" fill="#F9E79F"
               style={{ animation: 'sun-reveal 0.5s ease-out forwards' }}/>
           </g>
         )}
-        {/* Cloud */}
-        <g style={state === 'animating' ? { animation: 'cloud-drift 0.8s ease-in-out forwards' } : drifted ? { transform: 'translateX(30px)' } : undefined}>
-          <circle cx="30" cy="30" r="16" fill="white" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
-          <circle cx="46" cy="22" r="18" fill="white"/>
-          <circle cx="62" cy="28" r="16" fill="white"/>
-          <circle cx="22" cy="36" r="12" fill="white"/>
-          <circle cx="68" cy="34" r="12" fill="white"/>
-          {/* Cloud bottom flat */}
-          <rect x="10" y="34" width="70" height="12" fill="white"/>
+        {/* Cloud — overlapping white rounded shapes */}
+        <g style={state === 'animating' ? { animation: 'cloud-drift 0.8s ease-in-out forwards' } : drifted ? { transform: 'translateX(32px)' } : undefined}>
+          {/* Base rectangle */}
+          <rect x="8" y="32" width="74" height="18" rx="9" fill="#ECF0F1"/>
+          {/* Bumps */}
+          <circle cx="22" cy="32" r="16" fill="#ECF0F1"/>
+          <circle cx="40" cy="24" r="20" fill="#ECF0F1"/>
+          <circle cx="60" cy="28" r="16" fill="#ECF0F1"/>
+          <circle cx="72" cy="34" r="12" fill="#ECF0F1"/>
         </g>
       </svg>
       {discovered(state)}
@@ -98,32 +100,32 @@ export function Bird({ state, onDiscover }: ClickableObjectProps) {
   return (
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-110' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}>
-      <svg width="36" height="30" viewBox="0 0 36 30"
+      <svg width="38" height="28" viewBox="0 0 38 28"
         style={state === 'animating' ? { animation: 'bird-swoop 1s ease-in-out' } : undefined}>
-        {/* Body */}
-        <ellipse cx="18" cy="14" rx="10" ry="7" fill="#2C3E50"/>
-        {/* Wing left - flapping */}
-        <path d={state === 'animating' ? 'M8 12 Q0 4 4 14' : 'M8 12 Q2 8 6 16'}
-          fill="#34495E" style={{ transition: 'd 0.2s' }}/>
-        {/* Wing right - flapping */}
-        <path d={state === 'animating' ? 'M28 12 Q36 4 32 14' : 'M28 12 Q34 8 30 16'}
-          fill="#34495E" style={{ transition: 'd 0.2s' }}/>
+        {/* Body — dark blue rounded rect */}
+        <ellipse cx="19" cy="16" rx="11" ry="7" fill="#2C3E50"/>
+        {/* Wing left — flapping */}
+        <path d={state === 'animating' ? 'M9 14 Q1 5 5 14' : 'M9 14 Q2 10 6 18'}
+          fill="#34495E"/>
+        {/* Wing right — flapping */}
+        <path d={state === 'animating' ? 'M29 14 Q37 5 33 14' : 'M29 14 Q36 10 32 18'}
+          fill="#34495E"/>
         {/* Head */}
-        <circle cx="26" cy="10" r="6" fill="#2C3E50"/>
-        {/* Beak */}
-        <path d="M30 10 L36 8 L30 12" fill="#F39C12"/>
+        <circle cx="28" cy="12" r="7" fill="#2C3E50"/>
+        {/* Beak — orange triangle */}
+        <polygon points="33,11 38,13 33,15" fill="#F39C12"/>
         {/* Eye */}
-        <circle cx="27" cy="9" r="1.5" fill="#F39C12"/>
-        <circle cx="27" cy="9" r="0.8" fill="#1a1a1a"/>
+        <circle cx="30" cy="11" r="2" fill="#F4D03F"/>
+        <circle cx="30" cy="11" r="1" fill="#1A252F"/>
         {/* Tail */}
-        <path d="M8 14 Q2 16 0 20 Q4 18 6 22 Q10 18 8 14" fill="#2C3E50"/>
+        <path d="M8 16 Q2 18 0 22 Q4 20 6 24 Q10 20 8 16" fill="#2C3E50"/>
       </svg>
       {/* Flight trail */}
       {state === 'animating' && (
         <div className="absolute inset-0 pointer-events-none">
           {[0,1,2].map((i) => (
-            <div key={i} className="absolute w-1.5 h-1.5 rounded-full bg-sky-300 opacity-60"
-              style={{ left: `${20 - i*8}%`, top: '40%', animation: `trail-fade 1s ease-out ${i*0.15}s forwards` }}/>
+            <div key={i} className="absolute w-2 h-2 rounded-full bg-sky-300 opacity-60"
+              style={{ left: `${20 - i * 8}%`, top: '40%', animation: `trail-fade 1s ease-out ${i * 0.15}s forwards` }}/>
           ))}
         </div>
       )}
@@ -137,31 +139,31 @@ export function Windmill({ state, onDiscover }: ClickableObjectProps) {
   return (
     <div className={`relative cursor-pointer select-none ${state === 'idle' ? 'hover:scale-105' : ''}`}
       onClick={(e) => { e.stopPropagation(); if (state === 'idle') onDiscover(); }}>
-      <svg width="54" height="80" viewBox="0 0 54 80">
-        {/* Tower */}
-        <path d="M18 36 L14 80 L40 80 L36 36 Z" fill="#D2B48C" stroke="#A08060" strokeWidth="1.5"/>
-        {/* Tower stripes */}
-        {[50, 60, 70].map((y) => (
-          <line key={y} x1="15" y1={y} x2="39" y2={y} stroke="#A08060" strokeWidth="1" opacity="0.5"/>
-        ))}
+      <svg width="58" height="86" viewBox="0 0 58 86">
+        {/* Tower — tapered trapezoid */}
+        <path d="M20 38 L16 86 L42 86 L38 38 Z" fill="#D4A574"/>
+        {/* Tower stripe details */}
+        <line x1="17" y1="56" x2="41" y2="56" stroke="#C4956A" strokeWidth="1.5" opacity="0.5"/>
+        <line x1="16" y1="68" x2="42" y2="68" stroke="#C4956A" strokeWidth="1.5" opacity="0.5"/>
+        <line x1="15" y1="80" x2="43" y2="80" stroke="#C4956A" strokeWidth="1.5" opacity="0.5"/>
         {/* Door */}
-        <rect x="22" y="66" width="10" height="14" rx="5 5 0 0" fill="#8B6914"/>
+        <rect x="23" y="70" width="12" height="16" rx="6 6 0 0" fill="#784212"/>
+        {/* Cap */}
+        <polygon points="14,38 29,20 44,38" fill="#784212"/>
+        <ellipse cx="29" cy="38" rx="16" ry="5" fill="#8B4513"/>
         {/* Hub */}
-        <circle cx="27" cy="36" r="5" fill="#8B6914"/>
-        {/* Blades - spinning fast when animating */}
-        <g transform="translate(27,36)"
+        <circle cx="29" cy="38" r="5" fill="#D4A574"/>
+        {/* Blades — 4 rectangular blades in X pattern */}
+        <g transform="translate(29,38)"
           style={state === 'animating' ? { animation: 'blade-spin-fast 1.2s ease-in-out' } : { animation: 'blade-spin-slow 6s linear infinite' }}
           className="origin-[0px_0px]">
           {[0,90,180,270].map((angle) => (
-            <path key={angle}
+            <rect key={angle}
               transform={`rotate(${angle})`}
-              d="M0 0 L4 -30 L-4 -30 Z"
-              fill="#F5F5F0" stroke="#D0D0C8" strokeWidth="1"/>
+              x="-4" y="-32" width="8" height="30" rx="3"
+              fill="#ECF0F1"/>
           ))}
         </g>
-        {/* Cap */}
-        <ellipse cx="27" cy="28" rx="14" ry="6" fill="#8B6914"/>
-        <polygon points="13,28 27,14 41,28" fill="#A0522D"/>
       </svg>
       {discovered(state)}
     </div>

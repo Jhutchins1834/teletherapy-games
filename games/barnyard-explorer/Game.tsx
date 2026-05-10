@@ -256,24 +256,24 @@ function GameStyles() {
         0% { transform: translate(0,0) rotate(0deg); opacity: 1; }
         100% { transform: translate(calc((var(--i,0) - 3) * 20px), -30px) rotate(180deg); opacity: 0; }
       }
-      @keyframes anim-pitchfork-fall {
+      @keyframes pitchfork-fall {
         0% { transform: rotate(-20deg); }
         60% { transform: rotate(90deg) translateX(10px); }
         100% { transform: rotate(88deg) translateX(10px); }
       }
-      @keyframes anim-spin-fast {
+      @keyframes spin-fast {
         0% { transform: rotate(0deg); }
         70% { transform: rotate(720deg); }
         100% { transform: rotate(700deg); }
       }
-      @keyframes anim-saddle-bounce {
+      @keyframes saddle-bounce {
         0% { transform: translateY(0) scaleY(1); }
         30% { transform: translateY(-18px) scaleY(1.05); }
         55% { transform: translateY(4px) scaleY(0.95); }
         75% { transform: translateY(-6px) scaleY(1.02); }
         100% { transform: translateY(0) scaleY(1); }
       }
-      @keyframes anim-vane-spin {
+      @keyframes vane-spin {
         0% { transform: rotate(0deg); }
         60% { transform: rotate(540deg); }
         85% { transform: rotate(500deg); }

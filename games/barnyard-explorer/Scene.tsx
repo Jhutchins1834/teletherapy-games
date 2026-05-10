@@ -20,35 +20,35 @@ import {
 // All 25 objects in order (index 0–24)
 // Each entry: [x%, y%] — center of the object in the scene container
 export const OBJECT_POSITIONS: [number, number][] = [
-  // BARN AREA (0-6)
-  [35, 68],  // 0 corn bucket
-  [16, 44],  // 1 barn door
-  [42, 74],  // 2 hay bale
-  [7,  55],  // 3 pitchfork
-  [26, 36],  // 4 horseshoe
-  [37, 62],  // 5 saddle
-  [20, 6],   // 6 weather vane
-  // ANIMALS (7-14)
-  [52, 65],  // 7 hen on nest
-  [60, 54],  // 8 cow
-  [14, 76],  // 9 pig
-  [30, 52],  // 10 horse
-  [46, 62],  // 11 goat
-  [64, 68],  // 12 sheep
-  [24, 60],  // 13 mouse
-  [44, 46],  // 14 rooster
-  // POND & GARDEN (15-20)
-  [74, 74],  // 15 frog
-  [84, 64],  // 16 duck
-  [54, 78],  // 17 watering can
-  [66, 52],  // 18 sunflower
-  [50, 50],  // 19 scarecrow
-  [72, 76],  // 20 wheelbarrow
+  // BARN AREA (0-6) — left third
+  [36, 72],  // 0 corn bucket — right of barn door, on ground
+  [16, 50],  // 1 barn door — on barn face
+  [44, 76],  // 2 hay bale — right of barn, on ground
+  [7,  62],  // 3 pitchfork — leaning left barn wall
+  [19, 30],  // 4 horseshoe — on barn wall above door
+  [30, 58],  // 5 saddle — draped on fence near barn
+  [18, 7],   // 6 weather vane — on barn roof peak
+  // ANIMALS (7-14) — middle third
+  [52, 72],  // 7 hen on nest — ground right of barn
+  [40, 52],  // 8 cow — behind fence center-left
+  [26, 66],  // 9 pig — in front of fence, left of center
+  [50, 46],  // 10 horse — behind fence, head over rail center
+  [58, 62],  // 11 goat — near fence post center-right
+  [64, 72],  // 12 sheep — in front of fence right of center
+  [8,  78],  // 13 mouse — base of barn wall, small
+  [44, 41],  // 14 rooster — perched on fence post
+  // POND & GARDEN (15-20) — right third
+  [80, 74],  // 15 frog — on lily pad in pond
+  [88, 64],  // 16 duck — floating on pond
+  [56, 76],  // 17 watering can — near garden
+  [66, 58],  // 18 sunflower — in garden
+  [60, 52],  // 19 scarecrow — standing in garden
+  [74, 68],  // 20 wheelbarrow — garden edge
   // SKY & ENVIRONMENT (21-24)
-  [82, 36],  // 21 apple tree
-  [62, 9],   // 22 cloud
-  [42, 5],   // 23 bird
-  [76, 22],  // 24 windmill
+  [82, 42],  // 21 apple tree — right of center
+  [52, 10],  // 22 cloud — upper center
+  [36, 6],   // 23 bird — upper sky small
+  [82, 18],  // 24 windmill — background right
 ];
 
 type SceneProps = {
@@ -70,10 +70,7 @@ export default function Scene({ objectStates, words, skipWords, onObjectClick }:
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* ── Background ──────────────────────────────────────── */}
       <SceneBackground />
-
-      {/* ── Interactive Objects ──────────────────────────────── */}
       {OBJECT_POSITIONS.map(([x, y], id) => (
         <div
           key={id}
@@ -118,114 +115,118 @@ function ObjectById({ id, props }: { id: number; props: ReturnType<typeof makePr
   }
 }
 
-// Type helper only — not called at runtime
 function makePropsShape() {
   return { word: '', state: 'idle' as ObjectState, skipWords: false, onDiscover: () => {} };
 }
 
-/* ─── Scene Background ───────────────────────────────────── */
+/* ─── Scene Background — flat geometric minimalist ──────── */
 function SceneBackground() {
   return (
     <>
-      {/* Sky */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-sky-200 to-sky-100" />
+      {/* Sky — flat light blue */}
+      <div className="absolute inset-0" style={{ background: '#85C1E9', height: '62%' }} />
+      {/* Sky fill rest with ground color */}
+      <div className="absolute inset-0" style={{ background: '#85C1E9' }} />
 
-      {/* Sun */}
-      <div className="absolute" style={{ right: '8%', top: '6%' }}>
-        <div className="w-14 h-14 rounded-full bg-yellow-300 shadow-[0_0_30px_10px_rgba(253,224,71,0.5)]" />
+      {/* Sun — flat yellow circle, upper right */}
+      <div className="absolute" style={{ right: '6%', top: '5%' }}>
+        <div className="rounded-full" style={{ width: '60px', height: '60px', background: '#F9E79F' }} />
       </div>
 
-      {/* Distant hills */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="none">
-        <ellipse cx="120" cy="320" rx="160" ry="80" fill="#A8D5A2" opacity="0.5"/>
-        <ellipse cx="680" cy="300" rx="180" ry="90" fill="#A8D5A2" opacity="0.45"/>
-        <ellipse cx="400" cy="340" rx="200" ry="70" fill="#8FBC8F" opacity="0.4"/>
+      {/* Clouds — flat white shapes (decorative) */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 450" preserveAspectRatio="none">
+        {/* Ambient cloud 1 */}
+        <g opacity="0.9">
+          <rect x="60" y="40" width="100" height="28" rx="14" fill="#ECF0F1"/>
+          <circle cx="80" cy="42" r="18" fill="#ECF0F1"/>
+          <circle cx="110" cy="36" r="22" fill="#ECF0F1"/>
+          <circle cx="140" cy="40" r="18" fill="#ECF0F1"/>
+        </g>
+        {/* Ambient cloud 2 — smaller */}
+        <g opacity="0.85">
+          <rect x="320" y="25" width="70" height="20" rx="10" fill="#ECF0F1"/>
+          <circle cx="336" cy="28" r="14" fill="#ECF0F1"/>
+          <circle cx="358" cy="22" r="16" fill="#ECF0F1"/>
+          <circle cx="378" cy="26" r="13" fill="#ECF0F1"/>
+        </g>
       </svg>
 
-      {/* Main ground */}
-      <div className="absolute bottom-0 left-0 right-0" style={{ height: '38%',
-        background: 'linear-gradient(to bottom, #7EC850 0%, #5A9E32 40%, #4A8628 100%)' }} />
+      {/* Distant hills — flat muted green shapes at horizon */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 450" preserveAspectRatio="none">
+        <ellipse cx="160" cy="285" rx="180" ry="60" fill="#A8D5A2"/>
+        <ellipse cx="650" cy="275" rx="200" ry="70" fill="#A8D5A2"/>
+        <ellipse cx="400" cy="295" rx="220" ry="55" fill="#8FBC8F"/>
+      </svg>
 
-      {/* Barn structure (decorative, non-interactive) */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="none">
+      {/* Main ground — flat green rect */}
+      <div className="absolute bottom-0 left-0 right-0" style={{ height: '40%', background: '#27AE60' }} />
+      {/* Ground top stripe — slightly lighter */}
+      <div className="absolute left-0 right-0" style={{ height: '4%', bottom: '38%', background: '#2ECC71' }} />
+
+      {/* Barn structure — flat geometric */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 450" preserveAspectRatio="none">
         {/* Barn body */}
-        <rect x="40" y="140" width="220" height="170" fill="#B22222"/>
+        <rect x="30" y="145" width="230" height="175" fill="#C0392B"/>
+        {/* Barn side wall — darker */}
+        <polygon points="260,145 310,165 310,320 260,320" fill="#922B21"/>
         {/* Barn roof */}
-        <polygon points="20,140 150,60 280,140" fill="#8B0000"/>
+        <polygon points="10,145 145,55 280,145" fill="#922B21"/>
         {/* Roof peak accent */}
-        <polygon points="140,60 150,52 160,60" fill="#D4AC0D"/>
-        {/* Barn window */}
-        <rect x="100" y="160" width="40" height="40" rx="3" fill="#1a0a00"/>
-        <line x1="120" y1="160" x2="120" y2="200" stroke="#5C3A1E" strokeWidth="2"/>
-        <line x1="100" y1="180" x2="140" y2="180" stroke="#5C3A1E" strokeWidth="2"/>
-        {/* Barn side wall */}
-        <polygon points="260,140 300,160 300,310 260,310" fill="#922B21"/>
+        <polygon points="135,55 145,47 155,55" fill="#F4D03F"/>
+        {/* Window — small yellow square */}
+        <rect x="90" y="165" width="46" height="36" rx="4" fill="#F4D03F"/>
+        <rect x="111" y="165" width="4" height="36" fill="#E67E22"/>
+        <rect x="90" y="182" width="46" height="4" fill="#E67E22"/>
+        {/* Door frame area — dark opening */}
+        <rect x="155" y="205" width="60" height="115" rx="4" fill="#1a0800"/>
+        {/* X on door */}
+        <line x1="157" y1="207" x2="213" y2="318" stroke="#ECF0F1" strokeWidth="3" opacity="0.3"/>
+        <line x1="213" y1="207" x2="157" y2="318" stroke="#ECF0F1" strokeWidth="3" opacity="0.3"/>
         {/* Ground shadow */}
-        <ellipse cx="160" cy="312" rx="120" ry="10" fill="rgba(0,0,0,0.12)"/>
+        <ellipse cx="160" cy="322" rx="130" ry="8" fill="rgba(0,0,0,0.08)"/>
       </svg>
 
-      {/* Fence line */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="none">
-        <line x1="0" y1="295" x2="800" y2="295" stroke="#8B6914" strokeWidth="4"/>
-        <line x1="0" y1="278" x2="800" y2="278" stroke="#8B6914" strokeWidth="3"/>
-        {[40,120,200,280,360,440,520,600,680,760].map((x) => (
-          <rect key={x} x={x-5} y="265" width="10" height="40" rx="2" fill="#A07832"/>
+      {/* Fence — flat brown horizontal bars + posts */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 450" preserveAspectRatio="none">
+        {/* Rails */}
+        <rect x="0" y="284" width="800" height="7" rx="3" fill="#8B4513"/>
+        <rect x="0" y="268" width="800" height="6" rx="3" fill="#8B4513"/>
+        {/* Posts */}
+        {[30,110,190,270,350,430,510,590,670,750].map((x) => (
+          <rect key={x} x={x - 5} y="258" width="10" height="42" rx="3" fill="#D4A574"/>
         ))}
       </svg>
 
-      {/* Pond */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="none">
-        <ellipse cx="640" cy="370" rx="110" ry="45" fill="#5DADE2" opacity="0.75"/>
-        <ellipse cx="640" cy="360" rx="100" ry="35" fill="#7EC8E3" opacity="0.5"/>
-        {/* Lily pads decoration */}
-        <ellipse cx="590" cy="368" rx="14" ry="7" fill="#27AE60" opacity="0.6"/>
-        <ellipse cx="680" cy="374" rx="12" ry="6" fill="#27AE60" opacity="0.6"/>
-        <ellipse cx="630" cy="380" rx="10" ry="5" fill="#27AE60" opacity="0.5"/>
+      {/* Pond — flat blue ellipse, lower right */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 450" preserveAspectRatio="none">
+        <ellipse cx="650" cy="375" rx="120" ry="46" fill="#2980B9"/>
+        <ellipse cx="650" cy="368" rx="110" ry="36" fill="#3498DB"/>
+        {/* Lily pads */}
+        <ellipse cx="596" cy="372" rx="16" ry="8" fill="#1E8449"/>
+        <ellipse cx="688" cy="378" rx="14" ry="7" fill="#1E8449"/>
+        <ellipse cx="638" cy="382" rx="12" ry="6" fill="#27AE60"/>
       </svg>
 
-      {/* Garden patch */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="none">
-        <rect x="350" y="300" width="200" height="80" rx="4" fill="#8B4513" opacity="0.5"/>
+      {/* Garden patch — flat brown rect, center-right */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 450" preserveAspectRatio="none">
+        <rect x="370" y="305" width="210" height="72" rx="6" fill="#784212" opacity="0.45"/>
         {/* Row lines */}
-        {[315, 330, 345, 360].map((y) => (
-          <line key={y} x1="355" y1={y} x2="545" y2={y} stroke="#5C2F0D" strokeWidth="1.5" opacity="0.3"/>
+        {[318, 332, 346, 360].map((y) => (
+          <line key={y} x1="376" y1={y} x2="574" y2={y} stroke="#5C2F0D" strokeWidth="2" opacity="0.25"/>
         ))}
       </svg>
 
-      {/* Grass tufts foreground */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 450" preserveAspectRatio="none">
-        {[60,160,310,430,550,660,740].map((x) => (
-          <g key={x}>
-            <path d={`M${x} 310 Q${x-4} 296 ${x} 290`} fill="none" stroke="#4A8628" strokeWidth="3" strokeLinecap="round"/>
-            <path d={`M${x+6} 310 Q${x+8} 295 ${x+6} 288`} fill="none" stroke="#4A8628" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d={`M${x+12} 310 Q${x+14} 297 ${x+10} 292`} fill="none" stroke="#5A9E32" strokeWidth="2.5" strokeLinecap="round"/>
-          </g>
-        ))}
-      </svg>
-
-      {/* Ambient cloud animation */}
+      {/* Ambient drifting cloud */}
       <div className="absolute pointer-events-none"
-        style={{ left: '15%', top: '8%', animation: 'ambient-cloud 20s linear infinite' }}>
-        <svg width="80" height="36" viewBox="0 0 80 36">
-          <circle cx="20" cy="24" r="12" fill="white" opacity="0.7"/>
-          <circle cx="35" cy="16" r="14" fill="white" opacity="0.7"/>
-          <circle cx="52" cy="22" r="12" fill="white" opacity="0.7"/>
-          <circle cx="62" cy="28" r="9" fill="white" opacity="0.7"/>
-          <rect x="8" y="26" width="58" height="10" fill="white" opacity="0.7"/>
+        style={{ left: '10%', top: '6%', animation: 'ambient-cloud 28s linear infinite' }}>
+        <svg width="90" height="40" viewBox="0 0 90 40">
+          <rect x="8" y="22" width="74" height="18" rx="9" fill="white" opacity="0.75"/>
+          <circle cx="22" cy="24" r="16" fill="white" opacity="0.75"/>
+          <circle cx="42" cy="16" r="20" fill="white" opacity="0.75"/>
+          <circle cx="64" cy="20" r="16" fill="white" opacity="0.75"/>
+          <circle cx="76" cy="26" r="12" fill="white" opacity="0.75"/>
         </svg>
       </div>
-
-      {/* Swaying grass */}
-      <svg className="absolute bottom-0 left-0 right-0 pointer-events-none" viewBox="0 0 800 80" preserveAspectRatio="none"
-        style={{ height: '12%' }}>
-        {[...Array(30)].map((_, i) => (
-          <path key={i}
-            d={`M${i*28} 80 Q${i*28-6} 50 ${i*28} 30`}
-            fill="none" stroke="#4A8628" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"
-            style={{ animation: `grass-sway ${2 + (i%3)*0.4}s ease-in-out ${(i%5)*0.3}s infinite alternate` }}
-          />
-        ))}
-      </svg>
     </>
   );
 }
